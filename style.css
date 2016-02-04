@@ -1,0 +1,39 @@
+body {
+	font-family:"Helvetica Neue",Arial,Verdana,Tahoma;
+	color:rgb(210, 215, 210);
+	background-color:rgb(55, 63, 66);
+}
+
+h1 {
+	text-align:center;
+	font-family:"Helvetica Neue",Arial,Verdana,Tahoma;
+}
+
+div.main {
+	font-family:"Helvetica Neue",Arial,Verdana,Tahoma;
+	width:600px;
+	margin:0 auto;
+	height:auto;
+	margin-top:32px;
+	/*border: 1px solid #000;*/
+}
+
+div.recipient {
+	width: 960px;
+	text-align:center;
+	margin: 0 auto;
+}
+
+ul {
+	font-family:"Helvetica Neue",Arial,Verdana,Tahoma;
+	list-style-type:square;
+}
+
+a {
+	color:rgb(180, 160, 200);
+}
+
+canvas {
+	border:1px solid #000;
+	background-color: #DDD;
+}
