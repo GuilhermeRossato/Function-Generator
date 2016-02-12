@@ -92,11 +92,41 @@ function CanvasController(recipient, width, height) {
 			value: this.canvas.getContext("2d"),
 			writable: false
 		});
+		
+		this.draw = function() {
+			this.objects.forEach(obj => {
+				if (obj instanceof Object) {
+					if (obj.clear instanceof Function)
+						obj.clear.call(obj, this.ctx);
+					if (obj.draw instanceof Function)
+						obj.draw.call(obj, this.ctx);
+				}
+			});
+		}
+		
+		/*
+		if (Timestamper) {
+			this.timestamper = new Timestamper(700,delta => this.objects.forEach(obj => {
+				if (obj instanceof Object) {
+					if (obj.clear instanceof Function)
+						obj.clear.call(obj, this.ctx);
+					if (obj.update instanceof Function)
+						obj.update.call(obj, delta*this.multiplier);
+					if (obj.draw instanceof Function)
+						obj.draw.call(obj, this.ctx, delta*this.multiplier);
+				}
+			}));
+		}*/
+		
 		var holdThis = this;
 		document.addEventListener("mousemove", function(ev) { CanvasController.prototype.onMouseMove.call(holdThis, ev); }, false);
 		document.addEventListener("mousedown", function(ev) { CanvasController.prototype.onMouseDown.call(holdThis, ev); }, false);
 		document.addEventListener("mouseup", function(ev) { CanvasController.prototype.onMouseUp.call(holdThis, ev); }, false);
-		
+		//document.addEventListener("keydown", function(ev) { CanvasController.prototype.onKeyDown.call(holdThis, ev); }, false);
+		document.onkeydown = function(ev) {
+			return (CanvasController.prototype.onKeyDown.call(holdThis, ev));
+		}
+		document.addEventListener("keyup", function(ev) { CanvasController.prototype.onKeyUp.call(holdThis, ev); }, false);
 	} else
 		console.error("Canvas recipient:" , recipient, "should be a HTMLDivElement instance.");
 }
@@ -107,11 +137,17 @@ CanvasController.prototype = {
 	objects: new Array(),
 	mouse: {x:960/2, y:480/2, left:false, middle:false, right:false},
 	multiplier: 1.0,
-	
 	onMouseMove: function (ev) {
-		if (!(this.events["mousemove"] instanceof Array)||(this.events["mousemove"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop))))
-			this.objects.forEach(obj => { if (obj instanceof Object && obj.onMouseMove instanceof Function) obj.onMouseMove.call(obj, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop); });
-			//console.log("Process Mouse Move");
+		if (!(this.events["mousemove"] instanceof Array)||(this.events["mousemove"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop)))) {
+			var shouldDraw = false;
+			this.objects.forEach(function (obj) {
+				if (obj instanceof Object && obj.onMouseMove instanceof Function)
+					if (obj.onMouseMove.call(obj, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop))
+						shouldDraw = true;
+			});
+			if (shouldDraw)
+				this.draw();
+		}
 	},
 	onMouseDown: function (ev) {
 		if (!(this.events["mousedown"] instanceof Array)||(this.events["mousedown"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop)))) {
@@ -122,7 +158,15 @@ CanvasController.prototype = {
 				case 2:	this.mouse.right = true; break;
 				break;
 			}
-			this.objects.forEach(obj => { if (obj instanceof Object && obj.onMouseDown instanceof Function) obj.onMouseDown.call(obj, btnCode, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop); });
+			var shouldDraw = false;
+			this.objects.forEach(function (obj) {
+				if (obj instanceof Object && obj.onMouseDown instanceof Function)
+					if (obj.onMouseDown.call(obj, btnCode, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop))
+						shouldDraw = true;
+			});
+			if (shouldDraw)
+				this.draw();
+			
 		}
 	},
 	onMouseUp: function (ev) {
@@ -137,16 +181,60 @@ CanvasController.prototype = {
 			this.objects.forEach(obj => { if (obj instanceof Object && obj.onMouseUp instanceof Function) obj.onMouseUp.call(obj, btnCode, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop); });
 		}
 	},
-	addObject: function (btn) {
-		if (this instanceof CanvasController) {
-			this.objects.push(btn);
-			return btn
-		} else
-			console.error("Function must run from an instance of GuiBox");
+	onKeyUp: function (ev) {
+		if (!(this.events["keyup"] instanceof Array)||(this.events["keyup"].every(obj => obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)))) {
+			this.objects.forEach(obj => { if (obj instanceof Object && obj.onKeyUp instanceof Function) obj.onKeyUp.call(obj, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev); });
+		}
+	},
+	onKeyDown: function (ev) { // Returns true if key should be processed by browser
+		if (!(this.events["keydown"] instanceof Array)||(this.events["keydown"].every(obj => obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)))) {
+			var shouldDraw = false;
 			
+			this.objects.forEach(function (obj) {
+				if (obj instanceof Object && obj.onKeyDown instanceof Function)
+					if (obj.onKeyDown.call(obj, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)) {
+						shouldDraw = true;
+					}
+				});
+			if (shouldDraw) {
+				this.draw();
+				return false; // Was processed => make browser ignore input
+			} else if ((ev.keyCode === 9) && (!ev.ctrlKey)) { // TAB
+				var i, j;
+				for (i=this.objects.length-1;((i>=0) && (this.objects[i] instanceof Object) && !(this.objects[i].focus));i--);
+				if (i===-1) {
+					return true;
+				} else {
+					j = i+1;
+					while (i!==j) {
+						if ((this.objects[j] instanceof Object) && (this.objects[j].focus===false)) {
+							this.objects[i].focus = false;
+							this.objects[j].focus = true;
+							break;
+						}
+						if (j >= this.objects.length)
+							j = 0;
+						else
+							j++;
+					}
+					return (i===j);
+				}
+			}
+		}
+		return true; // Wasn't processed => let the browser do something with it
+	},
+	addObject: function (obj) {
+		if (this instanceof CanvasController) {
+			obj.parent = this;
+			this.objects.push(obj);
+			return obj;
+		} else
+			console.error("Function must run from an instance of CanvasController");
 	},
 	addEventListener: function (type, listener) {
 		if (typeof(type) === "string") {
+			if (type[0] == 'o' && type[1] == 'n')
+				type = type.substr(2);
 			var id = eventCandidates.indexOf(type.toLowerCase());
 			if (id !== -1) {
 				if (this.events[type.toLowerCase()] === undefined) {
@@ -157,11 +245,9 @@ CanvasController.prototype = {
 						this.events[type.toLowerCase()].push(listener);
 					} else
 						console.error("Specified listener is already connected to the event of type \""+type.toLowerCase()+"\"");
-						// You should not add the same function to the same event, use a god damn loop or something!
 				}
 			} else
 				console.error("No event of type \"" + type.toLowerCase() + "\" in CanvasController");
-				//First parameter must be one from the "eventCandidates" variable (global constant)
 		} else
 			console.error("First argument (",typeof(type),") is supposed to be a string");
 	},
@@ -175,13 +261,11 @@ CanvasController.prototype = {
 			}
 		} else
 			console.error("No event of type \"" + type.toLowerCase() + "\" in CanvasController");
-			//First parameter must be one from the "eventCandidates" variable (global constant)
 	},
 	clearEventListener: function (type) {
 		if ((typeof(type) === "string")&&(eventCandidates.indexOf(type.toLowerCase()) !== -1)) {
 			this.events[type.toLowerCase()] = undefined;
 		} else
 			console.error("No event of type \"" + type.toLowerCase() + "\" in CanvasController");
-			//First parameter must be one from the "eventCandidates" variable (global constant)
 	}
 }
