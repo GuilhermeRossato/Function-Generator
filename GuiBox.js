@@ -1,9 +1,9 @@
 /*	GuiBox.js - Created by GuilhermeRossato 01/2016
  * 
  *	 This class handles positioning of objects on a canvas controller, with anchor, alignment and other useful behaviours to control
- * 	It is supposed to be used as a property of another class.
+ * 	It is supposed to be used as a property (usually called "box") of another class.
  * 
- * 	 Requires: CanvasController
+ * 	 Requires: CanvasController.js
  * 
  * Usage Example: A "Square" class has one instance of this class: 
  * Square.prototype.box = new GuiBox(x, y, width, height);
@@ -16,11 +16,11 @@
  * 		width					Horizontal size of element [default 10 ]
  * 		height					Vertical size of element [ default 10 ]
  * 
- *	.checkBounds(x, y)			Returns true or false depending whenever the specified parameters are inside the button or not
- * 	.draw(ctx);					Placeholder function to draw a black box. one parameter: CanvasRenderingContext2D (ctx)
+ *	.checkBounds(x, y)			Returns true if the specified parameters are inside the button or not
+ * 	.draw(ctx);					Placeholder function to draw a black box. first parameter must be a CanvasRenderingContext2D (ctx/context from a canvas)
  * 
  * --------------------------------------------------------------------------------------------------------
- * Normal Properties: (can be assigned)
+ * Public Properties: (Can be assigned, one change will affect others)
  *	.left		Horizontal Left
  *  .center		Horizontal Center
  *  .right		Horizontal Right
@@ -29,7 +29,6 @@
  *  .bottom		Vertical Bottom
  *  .width		If changed the left of the box will stay at the same place
  *  .height		If changed the top of the box will stay at the same place
- * 
  * --------------------------------------------------------------------------------------------------------
  * 	
  */
@@ -196,22 +195,27 @@ GuiBox.prototype = {
 	constructor: GuiBox,
 	graphic: {},
 	draw: function (ctx) { // Placeholder
-		if (this instanceof GuiBox)
-		{
-			ctx.fillStyle = "#000";
-			ctx.beginPath();
-			ctx.moveTo(this.left, this.top);
-			ctx.lineTo(this.right, this.top);
-			ctx.lineTo(this.right, this.bottom);
-			ctx.lineTo(this.left, this.bottom);
-			ctx.fill();
+		if (this instanceof GuiBox) {
+			if (ctx instanceof CanvasRenderingContext2D) {
+				ctx.fillStyle = "#000";
+				ctx.beginPath();
+				ctx.moveTo(this.left, this.top);
+				ctx.lineTo(this.right, this.top);
+				ctx.lineTo(this.right, this.bottom);
+				ctx.lineTo(this.left, this.bottom);
+				ctx.fill();
+				return true;
+			} else
+				console.error("Function expected CanvasRenderingContext2D as first parameter, got",ctx);
 		} else
 			console.error("Function must run from an instance of GuiBox");
+		return false;
 	},
 	checkBounds: function(x, y) {
 		if (this instanceof GuiBox) {
 			return ((x > this.left) && (x < this.right) && (y > this.top) && (y < this.bottom)); 
 		} else
 			console.error("Function must run from an instance of GuiBox");
+		return false;
 	}
 }
