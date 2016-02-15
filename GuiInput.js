@@ -8,7 +8,7 @@
  *	<Pending documentation>
  * 
  */
-	
+
 if (typeof(defaultSet)!=="function") {
 	defaultSet = (value,defaultValue) => (typeof(value) !== "number" || isNaN(value) || value == 0 )?defaultValue:value;
 }
@@ -19,18 +19,19 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 	this.box = new GuiBox(x, y);
 	this.box.width = defaultSet(width, 20);
 	this.box.height = defaultSet(height, 20);
-	this.limit = defaultSet(limit, 0);
+	this.limit = defaultSet(limit, (this.box.width*0.14)|0);
 	Object.defineProperty(this,"text",{
 		configurable: false,
 		enumerable: false,
 		get: function() { return local_text; },
 		set: function(value) {
 			if ((value !== local_text) && ((this.limit < 1) || ((typeof(value)=== "string") && (value.length < this.limit)))) {
+				local_text = value;
 				if (this.pastText.length > 10)
 					this.pastText.shift();
 				this.pastText.push(local_text);
 				this.futureText = [];
-				return (local_text = value);
+				return true;
 			}
 			return false;
 		}
@@ -88,6 +89,7 @@ GuiInput.prototype = {
 	limit:0,
 	pastText: [],
 	futureText: [],
+	cursor: "text",
 	graphic: {roundness: 4, focusBorder: 2.5, bgColor:"#070E17", focusColor:"#006FFF", textColor:"#EEE", font:"13px Arial", margin:5, blinks: true},
 	startTimer: function() {
 		this.clearTimer();
@@ -136,7 +138,7 @@ GuiInput.prototype = {
 				if (ctrlKey) {
 					while ((this.text[dest-1] !== "." && this.text[dest-1] !== " " && this.text[dest-1] !== "@")&&(dest > 1))
 						dest--;
-					if (dest === 1 && this.text[0] !== '.' && this.text[0] !== ' ') // Bug fixed by exception
+					if (dest === 1 && this.text[0] !== '.' && this.text[0] !== ' ' && this.text[0] !== "@") // Bug fixed by exception
 						dest--;
 				}
 				if (shiftKey) {
@@ -158,8 +160,6 @@ GuiInput.prototype = {
 				if (ctrlKey) {
 					while ((this.text[dest] !== "." && this.text[dest] !== " " && this.text[dest] !== "@")&&(dest < this.text.length))
 						dest++;
-					//if (dest !== this.text.length)
-						//dest--;
 				}
 				if (shiftKey) {
 					this.selectionEnd = Math.min(this.text.length, dest);
@@ -190,8 +190,9 @@ GuiInput.prototype = {
 				}
 				return true;
 			} else if ((this.numeric) && (keyCode === 190 || keyCode === 194 || keyCode === 188 || keyCode === 110)) { // DOT / POINT / ZERO SEPARATOR
-				var i = this.text.indexOf('.');
-				var holdSelStart, holdSelEnd;
+				var i, holdSelStart, holdSelEnd, t;
+				t = this.text;
+				i = t.indexOf('.');
 				if (this.selectionEnd < this.selectionStart) {
 					holdSelStart = this.selectionEnd;
 					holdSelEnd = this.selectionStart;
@@ -199,40 +200,48 @@ GuiInput.prototype = {
 					holdSelStart = this.selectionStart;
 					holdSelEnd = this.selectionEnd;
 				}
-				if ((holdSelEnd !== i) && ((holdSelStart-i !== 1) || (holdSelStart !== holdSelEnd) || (this.text.length === 0))) {
+				if (holdSelEnd === 0 && t.charCodeAt() === 45) {
+					if (i!==-1)
+						t = t.replace('.', '');
+					if (this.text = "-." + t.substring(1))
+						this.selectionStart = (this.selectionEnd = Math.min(holdSelEnd+2, t.length));
 					this.startTimer();
-					if ((holdSelStart < i && holdSelEnd > i) || (i === -1)) {
-						this.text = this.text.substring(0,holdSelStart) + '.' + this.text.substring(holdSelEnd, this.text.length);
-						this.selectionStart = (this.selectionEnd = Math.min(holdSelStart+1,this.text.length));
-					} else if (holdSelEnd > i) {
-						this.text = this.text.replace('.', '');
-						this.text = this.text.substring(0,holdSelStart-1) + '.' + this.text.substring(holdSelEnd-1);
-						this.selectionStart = (this.selectionEnd = Math.min(holdSelStart,this.text.length));
-					} else if (holdSelEnd < i) {
-						this.text = this.text.replace('.', '');
-						this.text = this.text.substring(0,holdSelStart) + '.' + this.text.substring(holdSelEnd, this.text.length);
-						this.selectionStart = (this.selectionEnd = Math.min(holdSelStart+1,this.text.length));
+					return true;
+				} else if ((holdSelEnd !== i) && ((holdSelStart-i !== 1) || (holdSelStart !== holdSelEnd) || (holdSelEnd === 0))) {
+					this.startTimer();
+					if ((i === -1) || (holdSelStart <= i && holdSelEnd >= i)) { // Dot in selection
+						if (this.text = t.substring(0,holdSelStart) + '.' + t.substring(holdSelEnd, t.length))
+							this.selectionStart = (this.selectionEnd = Math.min(holdSelStart+1, this.text.length));
+					} else if (holdSelEnd > i) { // Dot Before Cursor
+						t = t.replace('.', '');
+						if (this.text = t.substring(0,holdSelStart-1) + '.' + t.substring(holdSelEnd-1))
+							this.selectionStart = (this.selectionEnd = Math.min(holdSelStart, this.text.length));
+					} else if (holdSelEnd < i) { // Dot After Cursor
+						t = t.replace('.', '');
+						if (this.text = t.substring(0,holdSelStart) + '.' + t.substring(holdSelEnd))
+							this.selectionStart = (this.selectionEnd = Math.min(holdSelStart+1, this.text.length));
 					}
-					if (this.onChange instanceof Function)
-						this.onChange.call(this);
+					this.startTimer();
+					return true;
+				} else if ((holdSelStart !== holdSelEnd) && (this.text.charCodeAt(holdSelEnd)===46)) {
+					if (this.text = t.substring(0,holdSelStart) + '.' + t.substring(holdSelEnd+1))
+						this.selectionStart = (this.selectionEnd = Math.min(holdSelStart+1,t.length));
+					this.startTimer();
 					return true;
 				}
 				return false
 			} else if (keyCode == 46) { // DELETE
 				var holdSelStart, holdSelEnd;
 				if (this.selectionEnd === this.selectionStart) {
-					//console.log("211 s",this.text.substring(0,this.selectionStart),this.text.substring(this.selectionStart+1));
 					this.text = this.text.substring(0,this.selectionStart) + this.text.substring(this.selectionStart+1);
 				} else if (this.selectionEnd < this.selectionStart) {
-					this.text = this.text.substring(0,this.selectionEnd) + this.text.substring(this.selectionStart);
-					this.selectionStart = this.selectionEnd;
+					if (this.text = this.text.substring(0,this.selectionEnd) + this.text.substring(this.selectionStart))
+						this.selectionStart = this.selectionEnd;
 				} else {
-					this.text = this.text.substring(0,this.selectionStart) + this.text.substring(this.selectionEnd);
-					this.selectionEnd = this.selectionStart;
+					if (this.text = this.text.substring(0,this.selectionStart) + this.text.substring(this.selectionEnd))
+						this.selectionEnd = this.selectionStart;
 				}
 				this.startTimer();
-				if (this.onChange instanceof Function)
-					this.onChange.call(this);
 				return true;
 			} else if (keyCode === 8) { // BACKSPACE
 				var holdSelStart, holdSelEnd;
@@ -247,25 +256,36 @@ GuiInput.prototype = {
 					this.selectionEnd = this.selectionStart;
 				}
 				this.startTimer();
-				if (this.onChange instanceof Function)
-					this.onChange.call(this);
 				return true;
 			} else if (ctrlKey && keyCode === 86) {
 				console.log("redo");
 			} else if (ctrlKey && keyCode === 90) {
 				console.log("undo");
-			//} else if (ctrlKey && keyCode === 86) { // Ctrl + V (PASTE)
-				//console.log(event);
-				//return false;
 			} else if (ctrlKey && keyCode === 65) { // Ctrl + A (ALL)
 				this.selectionStart = 0;
 				this.selectionEnd = this.text.length;
 				return true;
-			} else if ((!ctrlKey)&&(((!this.numeric)&&((keyCode === 190)||(keyCode === 194)||(keyCode === 188)||(keyCode === 110)||(keyCode === 32)||(keyCode === 50 && shiftKey && this.acceptsMail)||(keyCode === 9 && this.acceptsTab)||(keyCode >= 65 && keyCode <= 90)||(keyCode >= 96 && keyCode <= 105)||(keyCode >= 48 && keyCode <= 57))) ||  // TAB, a ~ z, A ~ Z, 0 ~ 9
+			} else if ((!ctrlKey)&&(this.numeric)&&(keyCode === 189 || keyCode === 109 || keyCode === 107)) { // MINUS, NEGATIVE MARK
+				if (this.text[0] === '-') {
+					this.text = this.text.substring(1);
+					if (this.selectionStart > 0)
+						this.selectionStart--;
+					if (this.selectionEnd > 0)
+						this.selectionEnd--;
+				} else if (keyCode !== 107) {
+					this.text = "-"+this.text;
+					this.selectionStart++;
+					this.selectionEnd++;
+				}
+				this.startTimer();
+				return true;
+			} else if ((!ctrlKey)&&(((!this.numeric)&&((keyCode === 109)||(keyCode === 189)||(keyCode === 190)||(keyCode === 194)||(keyCode === 188)||(keyCode === 110)||(keyCode === 32)||(keyCode === 50 && shiftKey && this.acceptsMail)||(keyCode === 9 && this.acceptsTab)||(keyCode >= 65 && keyCode <= 90)||(keyCode >= 96 && keyCode <= 105)||(keyCode >= 48 && keyCode <= 57))) ||  // TAB, a ~ z, A ~ Z, 0 ~ 9
 			 	((this.numeric)&&((keyCode >= 96 && keyCode <= 105)||(keyCode >= 48 && keyCode <= 57))) )) // 0 ~ 9
 			  {
 			  	var keyCode, holdSelStart, holdSelEnd;
-			  	if ((keyCode === 190)||(keyCode === 194)) 
+			  	if (keyCode === 189 || keyCode === 109)
+			  		addKey = 45;
+			  	else if ((keyCode === 190)||(keyCode === 194)) 
 			  		addKey = 46;
 			  	else if ((keyCode === 188)||(keyCode === 110))
 			  		addKey = 44;
@@ -274,7 +294,12 @@ GuiInput.prototype = {
 			  	else if (keyCode >= 65 && keyCode <= 90)
 			  		addKey = keyCode+32;
 			  	else if (keyCode >= 96 && keyCode <= 105)
-			  		addKey = keyCode-48;
+			  		if (shiftKey && !this.numeric)
+			  			addKey = [41, 33, 64, 35, 36, 37, 168, 38, 42, 40][keyCode-96];
+			  		else
+			  			addKey = keyCode-48;
+			  	else if (keyCode >= 48 && keyCode <= 57 && (shiftKey && !this.numeric))
+			  			addKey = [41, 33, 64, 35, 36, 37, 168, 38, 42, 40][keyCode-48];
 			  	else
 			  		addKey = keyCode;
 			  		
@@ -285,11 +310,10 @@ GuiInput.prototype = {
 					holdSelStart = this.selectionStart;
 					holdSelEnd = this.selectionEnd;
 				}
-				this.text = this.text.substring(0, holdSelStart) + String.fromCharCode(addKey) + this.text.substring(holdSelEnd, this.text.length);
-				this.selectionStart = (this.selectionEnd = Math.min(holdSelStart + 1, this.text.length));
-				this.startTimer();
-				if (this.onChange instanceof Function)
-					this.onChange.call(this);
+				if (this.text = this.text.substring(0, holdSelStart) + String.fromCharCode(addKey) + this.text.substring(holdSelEnd, this.text.length)) {
+					this.selectionStart = (this.selectionEnd = Math.min(holdSelStart + 1, this.text.length));
+					this.startTimer();
+				}
 				return true;
 			} else if (keyCode == 32)
 				return true;
@@ -301,7 +325,7 @@ GuiInput.prototype = {
 	},
 	onMouseMove: function(x, y) {
 		if (this instanceof GuiInput) {
-			if ((this.focus)&&(this.box.checkBounds(x, y))&&(this.parent instanceof CanvasController)&&(this.parent.mouse.left)) {
+			if ((this.parent.mouse.left)&&(this.focus||(this.box.checkBounds(x, y)))&&(this.parent instanceof CanvasController)) {
 				var ctx = this.parent.ctx, leftNow = 0, i;
 				ctx.font = this.graphic.font;
 				for (i=0;i<this.text.length;i++)
@@ -395,17 +419,17 @@ GuiInput.prototype = {
 					}
 					ctx.beginPath();
 					if (this.selectionEnd < this.selectionStart) {
-						ctx.moveTo(this.box.left+this.graphic.margin+barBegin, this.box.top+this.graphic.margin);
+						ctx.moveTo(this.box.left+this.graphic.margin+barBegin, this.box.top+this.graphic.margin-2);
 						ctx.lineTo(this.box.left+this.graphic.margin+barBegin, this.box.bottom-this.graphic.margin);
 					} else {
-						ctx.moveTo(this.box.left+this.graphic.margin+barEnd, this.box.top+this.graphic.margin);
+						ctx.moveTo(this.box.left+this.graphic.margin+barEnd, this.box.top+this.graphic.margin-2);
 						ctx.lineTo(this.box.left+this.graphic.margin+barEnd, this.box.bottom-this.graphic.margin);
 					}
 					ctx.stroke();
 					
 					if (barBegin !== barEnd) {
-						ctx.fillStyle = "rgba(221,221,221,0.3)";
-						ctx.fillRect(this.box.left+this.graphic.margin+barBegin,this.box.top+this.graphic.margin*1.1,barEnd-barBegin,this.box.height-this.graphic.margin*2.2);
+						ctx.fillStyle = "rgba(255,255,255,0.3)";
+						ctx.fillRect((this.box.left+this.graphic.margin+barBegin)|0,(this.box.top+this.graphic.margin)|0,(barEnd-barBegin)|0,(this.box.height-this.graphic.margin*2)|0);
 					}
 				}
 				
@@ -413,7 +437,7 @@ GuiInput.prototype = {
 				ctx.textAlign="left";
 				ctx.font = this.graphic.font;
 				ctx.textBaseline="middle";
-				ctx.fillText(this.text, this.box.left+this.graphic.margin, (this.box.top+this.box.bottom)/2);
+				ctx.fillText(this.text, this.box.left+this.graphic.margin, ((this.box.top+this.box.bottom+2)/2)|0);
 				
 			} else 
 				console.error("First parameter is supposed to be instance of CanvasRenderingContext2D:",ctx);

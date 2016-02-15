@@ -189,6 +189,14 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's height expects number, got", typeof(value));
  		}
 	});
+	
+	this.checkBounds = function(x, y) {
+		if (this instanceof GuiBox) {
+			return ((x > local_left) && (x < local_right) && (y > local_top) && (y < local_bottom)); 
+		} else
+			console.error("Function must run from an instance of GuiBox");
+		return false;
+	}
 }
 
 GuiBox.prototype = {
@@ -210,12 +218,12 @@ GuiBox.prototype = {
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
-	},
-	checkBounds: function(x, y) {
+	}
+	/*checkBounds: function(x, y) {
 		if (this instanceof GuiBox) {
 			return ((x > this.left) && (x < this.right) && (y > this.top) && (y < this.bottom)); 
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
-	}
+	}*/
 }

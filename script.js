@@ -16,7 +16,7 @@ window.addEventListener("load",function() {
 			
 		}
 	});
-	cnvc.addObject(new GuiInput(10, 10, 150, 24, true, 21));
+	cnvc.addObject(new GuiInput(10, 10, 90, 24, true));
 	cnvc.addObject(new GuiInput(10, 50, 150, 24, false));
 	cnvc.addObject(new GuiInput(10, 90, 130, 24, false));
 	cnvc.draw();
