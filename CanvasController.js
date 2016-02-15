@@ -50,28 +50,14 @@
 
 var eventCandidates = ["mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"];
 
+if (typeof(defaultSet)!=="function") {
+	defaultSet = (value,defaultValue) => ((typeof(value) !== "number" || isNaN(value) || value == 0)?defaultValue:value);
+}
+
 function CanvasController(recipient, width, height) {
-	console.log("Canvas Controller Instance Created");
 	if (recipient instanceof HTMLDivElement) {
-		var local_width = width, local_height = height;
-		if ( typeof(local_width) !== "number" || isNaN(local_width) || local_width == 0 )
-			local_width = 960;
-		if ( typeof(local_height) !== "number" || isNaN(local_height) || local_height == 0 )
-			local_height = 480;
-			
-		Object.defineProperty(this,"width",{
-			configurable: false,
-			enumerable: false,
-			get: function() { return (local_width) },
-			set: function(value) { local_width = value; canvas.width = local_width; return value; }
-		});
-			
-		Object.defineProperty(this,"height",{
-			configurable: false,
-			enumerable: false,
-			get: function() { return (local_height) },
-			set: function(value) { local_height = value; canvas.height = local_height; return value; }
-		});
+		var local, holdThis;
+		holdThis = this;
 		
 		Object.defineProperty(this,"canvas",{
 			configurable: false,
@@ -80,11 +66,49 @@ function CanvasController(recipient, width, height) {
 			writable: false
 		});
 		this.canvas.setAttribute('id','canvas');
-		this.canvas.width = local_width;
-		this.canvas.height = local_height;
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
 		this.canvas.oncontextmenu = function () { return false; };
 		recipient.appendChild(this.canvas);
-		console.log("Canvas appended to", recipient.id, "with size", local_width, local_height);
+		
+		local = {};
+		["width", "height"].forEach(function(property, i) {
+			local[property] = defaultSet(i===0?width:height, 960);
+			Object.defineProperty(holdThis,property,{
+				configurable: false,
+				enumerable: false,
+				get: function() { return local[property]; },
+				set: function(value) {
+					if (typeof value === "number") {
+						local[property] = value|0;
+						canvas[property] = local[property];
+					}
+					return local[property];
+				}
+			});
+			holdThis.canvas[property] = local[property];
+		});
+		
+		local["cursor"] = "default";
+		Object.defineProperty(this.mouse,"cursor",{
+			configurable: false,
+			enumerable: false,
+			get: function() { return local["cursor"]; },
+			set: function(value) {
+				if (value !== local["cursor"])
+					if ((typeof(value)==="string")&&(["default", "move", "crosshair", "pointer", "no-drop", "text", "wait", "copy", "help"].indexOf(value.toLowerCase()) !== -1)) {
+						local["cursor"] = value.toLowerCase();
+						if (holdThis instanceof CanvasController)
+							holdThis.canvas.style.cursor = local["cursor"];
+						else
+							console.error("Could not pull parent from mouse object",holdThis);
+						//canvas.style.cursor = value;
+					} else
+						console.error("Invalid cursor icon (",value,")");
+			}
+		});
+		
+		console.log("Canvas appended to", recipient.id, "with size", local["width"], local["height"]);
 		
 		Object.defineProperty(this,"ctx",{
 			configurable: false,
@@ -118,7 +142,6 @@ function CanvasController(recipient, width, height) {
 			}));
 		}*/
 		
-		var holdThis = this;
 		document.addEventListener("mousemove", function(ev) { CanvasController.prototype.onMouseMove.call(holdThis, ev); }, false);
 		document.addEventListener("mousedown", function(ev) { CanvasController.prototype.onMouseDown.call(holdThis, ev); }, false);
 		document.addEventListener("mouseup", function(ev) { CanvasController.prototype.onMouseUp.call(holdThis, ev); }, false);
@@ -138,15 +161,25 @@ CanvasController.prototype = {
 	mouse: {x:960/2, y:480/2, left:false, middle:false, right:false},
 	multiplier: 1.0,
 	onMouseMove: function (ev) {
-		if (!(this.events["mousemove"] instanceof Array)||(this.events["mousemove"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop)))) {
-			var shouldDraw = false;
+		var mx = ev.clientX - this.canvas.offsetLeft;
+		var my = ev.clientY - this.canvas.offsetTop;
+		var shouldDraw = false;
+		var shouldCursor = "default";
+		if (!(this.events["mousemove"] instanceof Array)||(this.events["mousemove"].every(obj => obj.call(this, mx, my)))) {
 			this.objects.forEach(function (obj) {
-				if (obj instanceof Object && obj.onMouseMove instanceof Function)
-					if (obj.onMouseMove.call(obj, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop))
-						shouldDraw = true;
+				if (obj instanceof Object) {
+					if (obj.onMouseMove instanceof Function) {
+						if (obj.onMouseMove.call(obj, mx, my))
+							shouldDraw = true;
+					}
+					if ((typeof(obj.cursor)==="string") && (obj.box instanceof GuiBox) && obj.box.checkBounds(mx, my)) {
+						shouldCursor = obj.cursor;
+					}
+				}
 			});
 			if (shouldDraw)
 				this.draw();
+			this.mouse.cursor = shouldCursor;
 		}
 	},
 	onMouseDown: function (ev) {
