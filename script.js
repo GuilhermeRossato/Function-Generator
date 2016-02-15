@@ -24,7 +24,6 @@ window.addEventListener("load",function() {
 
 		
 document.addEventListener('copy', function(e) {
-	console.log(e.originalEvent);
 	var plainData = "COPY WORKED script.js";
 	var htmlData = "<p>COPY WORKED script.js</p>";
 	var clipboard = e.clipboardData;
@@ -34,5 +33,5 @@ document.addEventListener('copy', function(e) {
 	//ev.clipboardData.setData('text/plain', "rekt");
 });
 document.addEventListener('paste', function(ev) {
-	console.log(ev.clipboardData.getData('text/plain'));
+	cnvc.objects.forEach(obj => { if (obj instanceof GuiInput && obj.focus===true) obj.paste.call(obj, ev.clipboardData.getData('text/plain')); }
 });
