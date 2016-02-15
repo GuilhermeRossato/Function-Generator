@@ -26,10 +26,10 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 		get: function() { return local_text; },
 		set: function(value) {
 			if ((value !== local_text) && ((this.limit < 1) || ((typeof(value)=== "string") && (value.length < this.limit)))) {
+				this.pastText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
 				local_text = value;
 				if (this.pastText.length > 10)
 					this.pastText.shift();
-				this.pastText.push(local_text);
 				this.futureText = [];
 				return true;
 			}
@@ -41,8 +41,10 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 	this.undo = function() {
 		if (this instanceof GuiInput) {
 			if (this.pastText.length > 0) {
-				local_text = this.pastText.pop();
-				this.futureText.push(local_text);
+				var t = this.pastText.pop();
+				this.futureText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
+				local_text = t[0];
+				this.selectionStart = (this.selectionEnd = t[1]);
 			}
 		}
 	}
@@ -50,9 +52,24 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 	this.redo = function() {
 		if (this instanceof GuiInput) {
 			if (this.futureText.length > 0) {
-				local_text = this.futureText.shift();
+				
+				//this.pastText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
+				//if (this.pastText.length > 10)
+				//	this.pastText.shift();
+					
+				var t = this.futureText.pop();
+				local_text = t[0];
+				this.selectionStart = (this.selectionEnd = t[1]);
 			}
 		}
+	}
+	
+	this.paste = function(clipboardText) {
+		var t = this.text;
+		if (this.selectionEnd < this.selectionStart)
+			t = this.text.substring(0,this.selectionEnd) + clipboardText + t.substring(this.selectionStart));
+		else
+			t = this.text.substring(0,this.selectionStart) + clipboardText + t.substring(this.selectionEnd));
 	}
 	
 	Object.defineProperty(this,"focus",{
@@ -257,10 +274,14 @@ GuiInput.prototype = {
 				}
 				this.startTimer();
 				return true;
-			} else if (ctrlKey && keyCode === 86) {
-				console.log("redo");
+			} else if (ctrlKey && keyCode === 89) {
+				this.redo();
+				this.startTimer();
+				return true;
 			} else if (ctrlKey && keyCode === 90) {
-				console.log("undo");
+				this.undo();
+				this.startTimer();
+				return true;
 			} else if (ctrlKey && keyCode === 65) { // Ctrl + A (ALL)
 				this.selectionStart = 0;
 				this.selectionEnd = this.text.length;
