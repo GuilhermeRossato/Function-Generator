@@ -28,7 +28,7 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 			if ((value !== local_text) && ((this.limit < 1) || ((typeof(value)=== "string") && (value.length < this.limit)))) {
 				this.pastText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
 				local_text = value;
-				if (this.pastText.length > 10)
+				if (this.pastText.length > 100)
 					this.pastText.shift();
 				this.futureText = [];
 				return true;
@@ -53,9 +53,9 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 		if (this instanceof GuiInput) {
 			if (this.futureText.length > 0) {
 				
-				//this.pastText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
-				//if (this.pastText.length > 10)
-				//	this.pastText.shift();
+				this.pastText.push([local_text,(this.selectionEnd>this.selectionStart)?this.selectionEnd:this.selectionStart]);
+				if (this.pastText.length > 100)
+					this.pastText.shift();
 					
 				var t = this.futureText.pop();
 				local_text = t[0];
@@ -65,11 +65,31 @@ function GuiInput(x, y, width, height, isNumeric, limit) {
 	}
 	
 	this.paste = function(clipboardText) {
-		var t = this.text;
+		var t, i, valid, ch;
+		if (this.numeric) {
+			t = clipboardText;
+			valid = 0;
+			for (i=t.length;(i>=0)&&(valid<2);i--) {
+				ch = t.charCodeAt(i);
+				if (ch === 44 || ch === 46) // "." or ","
+					valid += 1;
+				if (ch === 12 && i !== 0) // "-"
+					valid = 2;
+				else if (ch < 48 && ch > 57)
+					valid = 2;
+			}
+			if (valid >= 2)
+				return false;
+			else if (valid === 1 && t.indexOf(","))
+				clipboardText = t.replace(",",".");
+			else
+				clipboardText = t;
+		}
+		t = this.text;
 		if (this.selectionEnd < this.selectionStart)
-			t = this.text.substring(0,this.selectionEnd) + clipboardText + t.substring(this.selectionStart));
+			t = this.text.substring(0,this.selectionEnd) + clipboardText + t.substring(this.selectionStart);
 		else
-			t = this.text.substring(0,this.selectionStart) + clipboardText + t.substring(this.selectionEnd));
+			t = this.text.substring(0,this.selectionStart) + clipboardText + t.substring(this.selectionEnd);
 	}
 	
 	Object.defineProperty(this,"focus",{

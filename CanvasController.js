@@ -172,7 +172,7 @@ CanvasController.prototype = {
 						if (obj.onMouseMove.call(obj, mx, my))
 							shouldDraw = true;
 					}
-					if ((typeof(obj.cursor)==="string") && (obj.box instanceof GuiBox) && obj.box.checkBounds(mx, my)) {
+					if ((typeof(obj.cursor)==="string") && (obj.box instanceof GuiBox) && (obj.box.checkBounds(mx, my))) {
 						shouldCursor = obj.cursor;
 					}
 				}

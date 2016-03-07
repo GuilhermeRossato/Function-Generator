@@ -218,6 +218,17 @@ GuiBox.prototype = {
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
+	},
+	clear: function (ctx) { // Placeholder
+		if (this instanceof GuiBox) {
+			if (ctx instanceof CanvasRenderingContext2D) {
+				ctx.clearRect(this.left,this.top,this.width,this.height);
+				return true;
+			} else
+				console.error("Function expected CanvasRenderingContext2D as first parameter, got",ctx);
+		} else
+			console.error("Function must run from an instance of GuiBox");
+		return false;
 	}
 	/*checkBounds: function(x, y) {
 		if (this instanceof GuiBox) {
