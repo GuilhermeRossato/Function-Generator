@@ -4,8 +4,9 @@
 		<title>Bezier Function Generator</title>
 		<meta charset="utf-8"/>
 		<link href='style.css' rel='stylesheet' type='text/css'>
-		
+
         <script type='text/javascript' src='js-expression-eval/parser.js'></script>
+        <script type='text/javascript' src='cookie.js'></script>
         <script type='text/javascript' src='Circle.js'></script>
         <script type='text/javascript' src='CircleHandler.js'></script>
         <script type='text/javascript' src='GuiBox.js'></script>
@@ -13,8 +14,7 @@
         <script type='text/javascript' src='GuiInput.js'></script>
         <script type='text/javascript' src='CanvasController.js'></script>
 		<script type='text/javascript' src='script.js'></script>
-		
-		
+
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
         <link rel="apple-touch-icon" sizes="60x60" href="icon/apple-icon-60x60.png">
@@ -37,7 +37,10 @@
 	</head>
 	<body>
 		<h1>Bezier Function Generator</h1>
-		<div id="canvasRecipient" class="recipient"></div>
+		<div>
+			<div id="canvasRecipient" class="recipient"></div>
+			<div id="tools">text</div>
+		</div>
 		<div class="main"><p>The objective of this experiment is to generate multi purpose functions with interpolation. Using a modified Casteljau's Algorithm (inversed the equations), this application can generate custom functions for any purpose.</p>
 			<p>This experiment uses Javascript EMCA 5 and HTML5 Canvas element</p>
 			<p>Classes used:</p>
@@ -50,7 +53,7 @@
 			<p>Dependencies:</p>
 			<ul>
 			    <li>
-			        <a href="https://github.com/silentmatt/js-expression-eval/tree/master" itemprop="url" rel="name">JavaScript Expression Evaluator</a> by 
+			        <a href="https://github.com/silentmatt/js-expression-eval/tree/master" itemprop="url" rel="name">JavaScript Expression Evaluator</a> by
 			        <a href="https://github.com/silentmatt" itemprop="url" rel="author">silentmatt</a>
 			    </li>
 			</ul>

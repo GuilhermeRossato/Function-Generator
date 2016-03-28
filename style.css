@@ -36,4 +36,15 @@ a {
 canvas {
 	border:1px solid #000;
 	background-color: #DDD;
+	/*margin-right:150px;*/
+	float: left;
+	display:inline-block;
+}
+
+div#tools {
+	display:inline-block;
+	width:150px;
+	height:100%;
+	float: left;
+	background-color:#333;
 }

@@ -1,13 +1,13 @@
 /*	GuiBox.js - Created by GuilhermeRossato 01/2016
- * 
+ *
  *	 This class handles positioning of objects on a canvas controller, with anchor, alignment and other useful behaviours to control
  * 	It is supposed to be used as a property (usually called "box") of another class.
- * 
+ *
  * 	 Requires: CanvasController.js
- * 
- * Usage Example: A "Square" class has one instance of this class: 
+ *
+ * Usage Example: A "Square" class has one instance of this class:
  * Square.prototype.box = new GuiBox(x, y, width, height);
- * 
+ *
  * --------------------------------------------------------------------------------------------------------
  * Methods:
  * 	constructor([x, y, width, height]);		Class Constructor ( new GuiBox(...) )
@@ -15,10 +15,10 @@
  * 		y						Vertical position in pixels [ default 0 ]
  * 		width					Horizontal size of element [default 10 ]
  * 		height					Vertical size of element [ default 10 ]
- * 
+ *
  *	.checkBounds(x, y)			Returns true if the specified parameters are inside the button or not
  * 	.draw(ctx);					Placeholder function to draw a black box. first parameter must be a CanvasRenderingContext2D (ctx/context from a canvas)
- * 
+ *
  * --------------------------------------------------------------------------------------------------------
  * Public Properties: (Can be assigned, one change will affect others)
  *	.left		Horizontal Left
@@ -30,9 +30,9 @@
  *  .width		If changed the left of the box will stay at the same place
  *  .height		If changed the top of the box will stay at the same place
  * --------------------------------------------------------------------------------------------------------
- * 	
+ *
  */
-	
+
 if (typeof(defaultSet)!=="function") {
 	defaultSet = (value,defaultValue) => ((typeof(value) !== "number" || isNaN(value) || value == 0)?defaultValue:value);
 }
@@ -63,7 +63,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"center",{
 		configurable: false,
 		enumerable: false,
@@ -81,7 +81,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"right",{
 		configurable: false,
 		enumerable: false,
@@ -99,7 +99,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"top",{
 		configurable: false,
 		enumerable: false,
@@ -117,7 +117,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"middle",{
 		configurable: false,
 		enumerable: false,
@@ -135,7 +135,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"bottom",{
 		configurable: false,
 		enumerable: false,
@@ -153,7 +153,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's position expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"width",{
 		configurable: false,
 		enumerable: false,
@@ -171,7 +171,7 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's width expects number, got", typeof(value));
  		}
 	});
-	
+
 	Object.defineProperty(this,"height",{
 		configurable: false,
 		enumerable: false,
@@ -189,10 +189,10 @@ function GuiBox(x, y, width, height) {
 				console.error("Object's height expects number, got", typeof(value));
  		}
 	});
-	
+
 	this.checkBounds = function(x, y) {
 		if (this instanceof GuiBox) {
-			return ((x > local_left) && (x < local_right) && (y > local_top) && (y < local_bottom)); 
+			return ((x > local_left) && (x < local_right) && (y > local_top) && (y < local_bottom));
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
@@ -230,11 +230,4 @@ GuiBox.prototype = {
 			console.error("Function must run from an instance of GuiBox");
 		return false;
 	}
-	/*checkBounds: function(x, y) {
-		if (this instanceof GuiBox) {
-			return ((x > this.left) && (x < this.right) && (y > this.top) && (y < this.bottom)); 
-		} else
-			console.error("Function must run from an instance of GuiBox");
-		return false;
-	}*/
 }
