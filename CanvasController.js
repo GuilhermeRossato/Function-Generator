@@ -1,8 +1,8 @@
 /*	CanvasController.js - Created by GuilhermeRossato 01/2016
- * 
+ *
  * Requires: Timestamper.js (Optional)
- * 
- * Create the object when then the recipient you want the canvas in is loaded: 
+ *
+ * Create the object when then the recipient you want the canvas in is loaded:
  *  = new CanvasController(document.getElementById("recipient"));
  * --------------------------------------------------------------------------------------------------------
  * Methods:
@@ -10,23 +10,24 @@
  *		recipient	(HTMLDivElement)	actual <div> element for the canvas to be put at
  * 		width		(number)			Size of the canvas element in pixels (default 960px)
  * 		height		(number)			Size of the canvas element in pixels (default 480 px)
- * 
+ *
  *  .addObject(object)						Adds an object to the CanvasController
  * 		object		A new instance of the object to be created
- * 		
- * 
+ *
+ *
  * 	.addEventListener(type, listener);			Sends a call to 'listener' before processing a specific event
  * 		type		(string): "mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"
  * 		listener	(function): function to call when event happens
  * 		WARNING: listener MUST return logicly true value, otherwise the call will be aborted
  *		WARNING: useCapture	(from original addEventListener) IS NOT implemented and WILL be ignored
- * 
+ * 		RETURN! if you return false in any event, that event WILL NOT be processed -> YOUR FUNCTION HAS TO RETURN TRUE BY DEFAULT!
+ *
  * 	.removeEventListener(type, listener);		Removes a specific listener function from a specific event type
  * 		same as addEventListener
- * 
+ *
  * 	.clearEventListener(type)					Clears all listener of an event type
  * 		type		Candidates: "mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"
- * 		
+ *
  * --------------------------------------------------------------------------------------------------------
  * Constant Properties:
  *	.canvas;		instance of HTMLCanvasElement (HTML5)
@@ -45,7 +46,7 @@
  * "Private" Properties: (AKA not-meant-for-you-to-use-or-change)
  *		.events;		Array with keys corresponding to event types (string) to help with event listeners.
  * 		.objects;		Array with objects to handle, send draw calls, etc
- * 			Each object can optionally contain the following functions: draw(delta), update(delta), onMouseMove(x, y), onMouseDown(x, y, button), onMouseUp(x, y, button), 
+ * 			Each object can optionally contain the following functions: draw(delta), update(delta), onMouseMove(x, y), onMouseDown(x, y, button), onMouseUp(x, y, button),
  */
 
 var eventCandidates = ["mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"];
@@ -58,7 +59,7 @@ function CanvasController(recipient, width, height) {
 	if (recipient instanceof HTMLDivElement) {
 		var local, holdThis;
 		holdThis = this;
-		
+
 		Object.defineProperty(this,"canvas",{
 			configurable: false,
 			enumerable: false,
@@ -68,9 +69,9 @@ function CanvasController(recipient, width, height) {
 		this.canvas.setAttribute('id','canvas');
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
-		this.canvas.oncontextmenu = function () { return false; };
+		//this.canvas.oncontextmenu = function () { return false; };
 		recipient.appendChild(this.canvas);
-		
+
 		local = {};
 		["width", "height"].forEach(function(property, i) {
 			local[property] = defaultSet(i===0?width:height, 960);
@@ -88,7 +89,7 @@ function CanvasController(recipient, width, height) {
 			});
 			holdThis.canvas[property] = local[property];
 		});
-		
+
 		local["cursor"] = "default";
 		Object.defineProperty(this.mouse,"cursor",{
 			configurable: false,
@@ -107,30 +108,31 @@ function CanvasController(recipient, width, height) {
 						console.error("Invalid cursor icon (",value,")");
 			}
 		});
-		
+
 		console.log("Canvas appended to", recipient.id, "with size", local["width"], local["height"]);
-		
+
 		Object.defineProperty(this,"ctx",{
 			configurable: false,
 			enumerable: false,
 			value: this.canvas.getContext("2d"),
 			writable: false
 		});
-		
+
 		this.draw = function() {
-			this.objects.forEach(obj => {
+			var ctx = this.ctx;
+			this.objects.forEach(function (obj) {
 				if (obj instanceof Object) {
 					if (obj.clear instanceof Function)
-						obj.clear.call(obj, this.ctx);
+						obj.clear.call(obj, ctx);
 					if (obj.draw instanceof Function)
-						obj.draw.call(obj, this.ctx);
+						obj.draw.call(obj, ctx);
 				}
 			});
 		}
-		
+
 		/*
 		if (Timestamper) {
-			this.timestamper = new Timestamper(700,delta => this.objects.forEach(obj => {
+			this.timestamper = new Timestamper(700,delta => this.objects.forEach(function (obj) {
 				if (obj instanceof Object) {
 					if (obj.clear instanceof Function)
 						obj.clear.call(obj, this.ctx);
@@ -141,7 +143,7 @@ function CanvasController(recipient, width, height) {
 				}
 			}));
 		}*/
-		
+
 		document.addEventListener("mousemove", function(ev) { CanvasController.prototype.onMouseMove.call(holdThis, ev); }, false);
 		document.addEventListener("mousedown", function(ev) { CanvasController.prototype.onMouseDown.call(holdThis, ev); }, false);
 		document.addEventListener("mouseup", function(ev) { CanvasController.prototype.onMouseUp.call(holdThis, ev); }, false);
@@ -154,6 +156,10 @@ function CanvasController(recipient, width, height) {
 		console.error("Canvas recipient:" , recipient, "should be a HTMLDivElement instance.");
 }
 
+function getMousePosition(ev) {
+	return (ev instanceof MouseEvent)?{x: ev.clientX - this.canvas.offsetLeft + window.scrollX, y: ev.clientY - this.canvas.offsetTop + window.scrollY}:undefined;
+}
+
 CanvasController.prototype = {
 	constructor: CanvasController,
 	events: new Array(),
@@ -161,29 +167,29 @@ CanvasController.prototype = {
 	mouse: {x:960/2, y:480/2, left:false, middle:false, right:false},
 	multiplier: 1.0,
 	onMouseMove: function (ev) {
-		var mx = ev.clientX - this.canvas.offsetLeft;
-		var my = ev.clientY - this.canvas.offsetTop;
-		var shouldDraw = false;
-		var shouldCursor = "default";
-		if (!(this.events["mousemove"] instanceof Array)||(this.events["mousemove"].every(obj => obj.call(this, mx, my)))) {
+		var m = getMousePosition(ev), shouldDraw = false, shouldCursor = "default";
+		if ((!(this.events["mousemove"] instanceof Array))||(this.events["mousemove"].every(function (obj) { obj.call(this, m.x, m.y); }))) {
+			/*If there is no event OR every events return true*/
 			this.objects.forEach(function (obj) {
 				if (obj instanceof Object) {
 					if (obj.onMouseMove instanceof Function) {
-						if (obj.onMouseMove.call(obj, mx, my))
+						if (obj.onMouseMove.call(obj, m.x, m.y))
 							shouldDraw = true;
 					}
-					if ((typeof(obj.cursor)==="string") && (obj.box instanceof GuiBox) && (obj.box.checkBounds(mx, my))) {
+					if ((typeof(obj.cursor)==="string") && (obj.box instanceof GuiBox) && (shouldCursor === "default") && (obj.box.checkBounds(m.x, m.y))) {
 						shouldCursor = obj.cursor;
 					}
 				}
 			});
-			if (shouldDraw)
+			if (shouldDraw) {
 				this.draw();
+			}
 			this.mouse.cursor = shouldCursor;
 		}
 	},
 	onMouseDown: function (ev) {
-		if (!(this.events["mousedown"] instanceof Array)||(this.events["mousedown"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop)))) {
+		var m = getMousePosition(ev), shouldDraw = false;
+		if (!(this.events["mousedown"] instanceof Array)||(this.events["mousedown"].every(function (obj) { obj.call(m.x, m.y); }))) {
 			var btnCode = ev.button;
 			switch (btnCode) {
 				case 0: this.mouse.left = true; break;
@@ -191,38 +197,43 @@ CanvasController.prototype = {
 				case 2:	this.mouse.right = true; break;
 				break;
 			}
-			var shouldDraw = false;
 			this.objects.forEach(function (obj) {
-				if (obj instanceof Object && obj.onMouseDown instanceof Function)
-					if (obj.onMouseDown.call(obj, btnCode, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop))
+				if ((obj instanceof Object) && (obj.onMouseDown instanceof Function))
+					if (obj.onMouseDown.call(obj, btnCode, m.x, m.y))
 						shouldDraw = true;
 			});
 			if (shouldDraw)
 				this.draw();
-			
 		}
 	},
 	onMouseUp: function (ev) {
-		if (!(this.events["mouseup"] instanceof Array)||(this.events["mouseup"].every(obj => obj.call(this, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop)))) {
+		var m = getMousePosition(ev), shouldDraw = false;
+		if (!(this.events["mouseup"] instanceof Array)||(this.events["mouseup"].every(function (obj) { obj.call(this, m.x, m.y); } ))) {
 			var btnCode = ev.button;
 			switch (btnCode) {
 				case 0: this.mouse.left = false; break;
 				case 1: this.mouse.middle = false; break;
 				case 2:	this.mouse.right = false; break;
 				break;
-			}			
-			this.objects.forEach(obj => { if (obj instanceof Object && obj.onMouseUp instanceof Function) obj.onMouseUp.call(obj, btnCode, ev.clientX - this.canvas.offsetLeft, ev.clientY - this.canvas.offsetTop); });
+			}
+			this.objects.forEach(function (obj) {
+				if (obj instanceof Object && obj.onMouseUp instanceof Function)
+					if (obj.onMouseUp.call(obj, btnCode, m.x, m.y))
+						shouldDraw = true;
+			});
+			if (shouldDraw)
+				this.draw();
 		}
 	},
 	onKeyUp: function (ev) {
-		if (!(this.events["keyup"] instanceof Array)||(this.events["keyup"].every(obj => obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)))) {
-			this.objects.forEach(obj => { if (obj instanceof Object && obj.onKeyUp instanceof Function) obj.onKeyUp.call(obj, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev); });
+		if (!(this.events["keyup"] instanceof Array)||(this.events["keyup"].every(function (obj) { obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev); }))) {
+			this.objects.forEach(function (obj) { if (obj instanceof Object && obj.onKeyUp instanceof Function) obj.onKeyUp.call(obj, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev); });
 		}
 	},
 	onKeyDown: function (ev) { // Returns true if key should be processed by browser
-		if (!(this.events["keydown"] instanceof Array)||(this.events["keydown"].every(obj => obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)))) {
+		if (!(this.events["keydown"] instanceof Array)||(this.events["keydown"].every(function (obj) { obj.call(this, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev); }))) {
 			var shouldDraw = false;
-			
+
 			this.objects.forEach(function (obj) {
 				if (obj instanceof Object && obj.onKeyDown instanceof Function)
 					if (obj.onKeyDown.call(obj, ev.keyCode, ev.ctrlKey, ev.shiftKey, ev.altKey, ev)) {
@@ -287,7 +298,7 @@ CanvasController.prototype = {
 	removeEventListener: function (type, listener) {
 		if ((typeof(type) === "string")&&(eventCandidates.indexOf(type.toLowerCase()) !== -1)) {
 			if (this.events[type.toLowerCase()] instanceof Array) {
-				var id = this.events[type.toLowerCase()].indexOf(listener); 
+				var id = this.events[type.toLowerCase()].indexOf(listener);
 				if (id !== -1) {
 					delete this.events[type.toLowerCase()][id];
 				}
