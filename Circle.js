@@ -18,8 +18,12 @@ Circle.prototype = {
 		//return (Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2) <= Math.pow(this.radius,2));
 		//return (Math.sqrt(Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2)) <= this.radius);
 	},
-	draw: function(ctx) {
-		ctx.moveTo(this.position.x, this.position.y);
-		ctx.arc(this.position.x, this.position.y, this.radius, 0, 2*Math.PI);
+	draw: function(ctx, type) {
+		if (!type) {
+			ctx.moveTo(this.position.x + this.radius, this.position.y);
+			ctx.arc(this.position.x, this.position.y, this.radius, 0, 2*Math.PI);
+		} else {
+
+		}
 	}
 }

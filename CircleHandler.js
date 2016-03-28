@@ -4,14 +4,26 @@ function CircleHandler(parent) {
 		this.box = new GuiBox(0, 0, this.parent.width, this.parent.height);
 		var holdThis = this;
 		this.box.checkBounds = function(x, y) {
-			//var at = + new Date();
-			//var result = holdThis.selected||(holdThis.circles.some(function (obj) { return (obj.inside(x, y)) }));
-			//console.log("distance = ",(+ new Date())-at);
-			//return result;
 			return holdThis.selected||(holdThis.circles.some(function (obj) { return (obj.inside(x, y)) }));
 		}
-		for(var i = 0;i<1000;i++)
+		var lastc = NaN;
+		if (getCookie) {
+			lastc = parseInt(getCookie("circleCount"));
+		}
+		if (isNaN(lastc)) {
+			lastc = 4;
+			repeat.call(this, lastc, function(i) {
+				this.addCircle(new Circle(this.box.width*(i/lastc)+this.box.width*Math.random()*(1/lastc), this.box.height*Math.random(), 6));
+			});
+		} else {
+
+		}
+
+		repeat.call(this, 100, function (i) {
 			this.addCircle(new Circle(this.parent.width*Math.random(), this.parent.height*Math.random(), 10));
+			return true;
+		})
+
 	} else
 		console.error("Parent not CanvasController");
 }
@@ -43,7 +55,7 @@ CircleHandler.prototype = {
 	draw: function(ctx) {
 		ctx.strokeStyle = "#444";
 		ctx.beginPath();
-		this.circles.forEach(function(obj) { obj.draw(ctx); });
+		this.circles.forEach(function(obj) { obj.draw.call(obj, ctx); });
 		ctx.stroke();
 	}
 }
