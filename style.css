@@ -1,11 +1,11 @@
 body {
-	font-family:font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	color:rgb(210, 215, 210);
-	background-color:rgb(55, 63, 66);
+	font-family: font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	color: rgb(210, 215, 210);
+	background-color: rgb(55, 63, 66);
 }
 
 h1 {
-	text-align:center;
+	text-align: center;
 }
 
 @media (max-width: 500px) {
@@ -15,7 +15,7 @@ h1 {
 }
 
 a {
-	color:#ffffdd;
+	color: #ffffdd;
 }
 
 a:visited {
@@ -23,21 +23,21 @@ a:visited {
 }
 
 div {
-	padding:5px;
+	padding: 5px;
 }
 
 div.flexbox {
-	padding:0;
+	padding: 0;
 	border: none;
-	display:flex;
-	justify-content:center;
-	align-items:center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 div.everything {
-	padding:0;
-	width:80%;
-	border:none;
+	padding: 0;
+	width: 80%;
+	border: none;
 }
 
 @media (min-width: 800px) {
@@ -47,104 +47,113 @@ div.everything {
 }
 
 h4 {
-	padding:0px;
-	margin:5px 0 5px 0;
-	text-align:center;
+	padding: 0px;
+	margin: 5px 0 5px 0;
+	text-align: center;
 }
 
 div.header {
-	padding:0;
-	border:none;
-	margin:10px 0 0 0;
+	padding: 0;
+	border: none;
+	margin: 10px 0 0 0;
 }
 
 div.header h1 {
-	padding:0;
-	margin:5px 0 5px 0;
+	padding: 0;
+	margin: 5px 0 5px 0;
 }
 
-
 div.content {
-	padding:0;
-	margin:0;
-	border:none;
-	background-color:rgba(228,228,228,0.1);
+	padding: 0;
+	margin: 0;
+	border: none;
+	background-color: rgba(228,228,228,0.1);
 }
 
 div#canvasRecipient {
-	padding:5px;
-	margin:0;
-	border:none;
+	padding: 5px;
+	margin: 0;
+	border: none;
 	float: left;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 div#tools {
-	border:none;
+	border: none;
 	float: left;
-	width:127px;
+	width: 127px;
 	border-bottom: 1px #333 dashed;
-	text-align:center;
-	margin-left:-2px;
+	text-align: center;
+	margin-left: -2px;
 }
 
 div.actions {
-	border:none;
-	padding:0
-	margin:0;
+	border: none;
+	padding: 0 margin:0;
 }
 
 input[type="button"] {
 	font-family: inherit;
-	width:118px;
+	width: 118px;
 	margin: 1px 0px 3px 0px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-	height:22px;
+	height: 22px;
 }
 
 div#canvasHeight {
-	height:200px;
-	margin:0;
+	height: 200px;
+	margin: 0;
 	/* background-color:blue; */
 }
 
 canvas {
-	background-color:rgba(255,255,255,0.1);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+	background-color:rgb(107,112,115);
 }
 
 div#points {
-	border :none;
-	margin:0;
-	padding:0;
+	border : none;
+	margin: 0;
+	padding: 0;
 }
 
 div.info {
-	text-align:justify;
+	text-align: justify;
 	padding: 0 10px 10px 10px;
-	margin-top:0;
+	margin-top: 0;
 }
 
 @media (max-width: 500px) {
 	div.everything {
 		width:90%;
 	}
+
 	div#canvasRecipient {
-		float:none;
-		margin-bottom:2px;
-		padding-bottom:0px;
+		float: none;
+		margin-bottom: 2px;
+		padding-bottom: 0px;
 	}
+
 	div#tools {
-		float:right;
+		float: right;
 		margin: 0px 5px 5px 10px;
 		padding: 0px;
 		border: 1px #333 solid;
 	}
+
 	input[type="button"] {
-		width:105px;
-		padding:0;
+		width: 105px;
+		padding: 0;
 		margin: 1px 0px 3px 0px;
 	}
+
 	div#canvasHeight {
-		display:none;
+		display: none;
 	}
 }

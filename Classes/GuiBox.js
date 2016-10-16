@@ -32,177 +32,182 @@
  * --------------------------------------------------------------------------------------------------------
  *
  */
-
-if (typeof(defaultSet)!=="function") {
-	defaultSet = (value,defaultValue) => ((typeof(value) !== "number" || isNaN(value) || value == 0)?defaultValue:value);
+if (typeof (defaultSet) !== "function") {
+	defaultSet = (value,defaultValue)=>((typeof (value) !== "number" || isNaN(value) || value == 0) ? defaultValue : value);
 }
-
 function GuiBox(x, y, width, height) {
-	var local_left = defaultSet(x, 0),
-		local_top = defaultSet(y, 0),
-		local_width = defaultSet(width, 10),
-		local_height = defaultSet(height, 10),
-		local_right = local_left + local_width,
-		local_bottom = local_top + local_height,
-		local_center = (local_left+local_right)/2,
-		local_middle = (local_top+local_bottom)/2;
-
-	Object.defineProperty(this,"left",{
+	var local_left = defaultSet(x, 0)
+	  , local_top = defaultSet(y, 0)
+	  , local_width = defaultSet(width, 10)
+	  , local_height = defaultSet(height, 10)
+	  , local_right = local_left + local_width
+	  , local_bottom = local_top + local_height
+	  , local_center = (local_left + local_right) / 2
+	  , local_middle = (local_top + local_bottom) / 2;
+	Object.defineProperty(this, "left", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_left; },
+		get: function() {
+			return local_left;
+		},
 		set: function(value) {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (local_left !== value) {
 					local_right = (local_left = value) + local_width;
-					local_center = (local_left + local_right)/2;
+					local_center = (local_left + local_right) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("left");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"center",{
+	Object.defineProperty(this, "center", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_center; },
+		get: function() {
+			return local_center;
+		},
 		set: function(value) {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (local_center !== value) {
 					local_center = value;
-					local_left = value-local_width/2;
-					local_right = value+local_width/2;
+					local_left = value - local_width / 2;
+					local_right = value + local_width / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("center");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"right",{
+	Object.defineProperty(this, "right", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_right; },
+		get: function() {
+			return local_right;
+		},
 		set: function(value) {
-			if (typeof(value) === "number") {
+			if (typeof (value) === "number") {
 				if (local_right !== value) {
 					local_right = value;
 					local_left = value - local_width;
-					local_center = (local_left + local_right)/2;
+					local_center = (local_left + local_right) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("right");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"top",{
+	Object.defineProperty(this, "top", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_top; },
+		get: function() {
+			return local_top;
+		},
 		set: function(value) {
-			if (typeof(value) === "number") {
+			if (typeof (value) === "number") {
 				if (local_top !== value) {
 					local_top = value;
 					local_bottom = value + local_height;
-					local_middle = (local_top + local_bottom)/2;
+					local_middle = (local_top + local_bottom) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("top");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"middle",{
+	Object.defineProperty(this, "middle", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_middle; },
+		get: function() {
+			return local_middle;
+		},
 		set: function(value) {
-			if (typeof(value) === "number") {
+			if (typeof (value) === "number") {
 				if (local_middle !== value) {
 					local_middle = value;
-					local_top = value-local_height/2;
-					local_bottom = value+local_height/2;
+					local_top = value - local_height / 2;
+					local_bottom = value + local_height / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("middle");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"bottom",{
+	Object.defineProperty(this, "bottom", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_bottom; },
+		get: function() {
+			return local_bottom;
+		},
 		set: function(value) {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (local_bottom !== value) {
 					local_bottom = value;
 					local_top = value - local_height;
-					local_middle = (local_top + local_bottom)/2;
+					local_middle = (local_top + local_bottom) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("bottom");
 				}
 			} else
-				console.error("Object's position expects number, got", typeof(value));
- 		}
+				console.error("Object's position expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"width",{
+	Object.defineProperty(this, "width", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_width; },
+		get: function() {
+			return local_width;
+		},
 		set: function(value) {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (local_width !== value) {
 					local_width = value;
 					local_right = local_left + value;
-					local_center = (local_left+local_right)/2;
+					local_center = (local_left + local_right) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("width");
 				}
 			} else
-				console.error("Object's width expects number, got", typeof(value));
- 		}
+				console.error("Object's width expects number, got", typeof (value));
+		}
 	});
-
-	Object.defineProperty(this,"height",{
+	Object.defineProperty(this, "height", {
 		configurable: false,
 		enumerable: false,
-		get: function() { return local_height; },
+		get: function() {
+			return local_height;
+		},
 		set: function(value) {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (local_height !== value) {
 					local_height = value;
 					local_bottom = local_top + value;
-					local_middle = (local_top+local_bottom)/2;
+					local_middle = (local_top + local_bottom) / 2;
 					if (this.onChange instanceof Function)
 						this.onChange("height");
 				}
 			} else
-				console.error("Object's height expects number, got", typeof(value));
- 		}
+				console.error("Object's height expects number, got", typeof (value));
+		}
 	});
-
 	this.checkBounds = function(x, y) {
 		if (this instanceof GuiBox) {
-			return ((x > local_left) && (x < local_right) && (y > local_top) && (y < local_bottom));
+			return ( (x > local_left) && (x < local_right) && (y > local_top) && (y < local_bottom)) ;
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
 	}
 }
-
 GuiBox.prototype = {
 	constructor: GuiBox,
 	graphic: {},
-	draw: function (ctx) { // Placeholder
+	draw: function(ctx) {
+		// Placeholder
 		if (this instanceof GuiBox) {
 			if (ctx instanceof CanvasRenderingContext2D) {
 				ctx.fillStyle = "#000";
@@ -214,18 +219,19 @@ GuiBox.prototype = {
 				ctx.fill();
 				return true;
 			} else
-				console.error("Function expected CanvasRenderingContext2D as first parameter, got",ctx);
+				console.error("Function expected CanvasRenderingContext2D as first parameter, got", ctx);
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;
 	},
-	clear: function (ctx) { // Placeholder
+	clear: function(ctx) {
+		// Placeholder
 		if (this instanceof GuiBox) {
 			if (ctx instanceof CanvasRenderingContext2D) {
-				ctx.clearRect(this.left,this.top,this.width,this.height);
+				ctx.clearRect(this.left, this.top, this.width, this.height);
 				return true;
 			} else
-				console.error("Function expected CanvasRenderingContext2D as first parameter, got",ctx);
+				console.error("Function expected CanvasRenderingContext2D as first parameter, got", ctx);
 		} else
 			console.error("Function must run from an instance of GuiBox");
 		return false;

@@ -71,8 +71,6 @@ function CanvasController(recipient, width, height) {
 			var ctx = this.ctx;
 			this.objects.forEach(function (obj) {
 				if (obj instanceof Object) {
-					if (obj.clear instanceof Function)
-						obj.clear.call(obj, ctx);
 					if (obj.draw instanceof Function)
 						obj.draw.call(obj, ctx);
 				}
@@ -87,6 +85,16 @@ function CanvasController(recipient, width, height) {
 			return (CanvasController.prototype.onKeyDown.call(holdThis, ev));
 		}
 		document.addEventListener("keyup", function(ev) { CanvasController.prototype.onKeyUp.call(holdThis, ev); }, false);
+		
+		document.addEventListener('paste', function(ev) {
+			holdThis.objects.every(function(obj) {
+				if (obj instanceof GuiInput && obj.focus === true && obj.paste instanceof Function)
+					return obj.paste.call(obj, ev.clipboardData.getData('text/plain')) && false;
+				else
+					return true;
+			});
+		});
+
 	} else
 		console.error("Canvas recipient:" , recipient, "should be a HTMLDivElement instance.");
 }
@@ -246,5 +254,8 @@ CanvasController.prototype = {
 			this.events[type.toLowerCase()] = undefined;
 		} else
 			console.error("No event of type \"" + type.toLowerCase() + "\" in CanvasController");
+	},
+	clear: function() {
+		this.ctx.clearRect(-1,-1,this.width+2, this.height+2);
 	}
 }

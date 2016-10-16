@@ -7,7 +7,21 @@ function CircleHandler(parent) {
 		this.box.checkBounds = function(x, y) {
 			return holdThis.selected||(holdThis.circles.some(function (obj) { return (obj.inside(x, y)) }));
 		}
-		var lastc = NaN;
+		
+		this.circles = [];
+
+		["x", "y"].forEach((property) => {
+			var i, value;
+			for (i = 0;i<5;i++) {
+				value = parseInt(getCookie(property+i));
+				if ((typeof(lastc) !== "number") || (isNaN(lastc))) {
+					if (typeof this.circles[i] === "undefined") {
+						this.circles[i] = new Circle();
+					}
+					this.circles[i][property] = value;
+				}
+			}
+		});
 		lastc = parseInt(getCookie("circleCount"));
 		
 		if ((typeof(lastc) !== "number") || (isNaN(lastc))) {
@@ -15,8 +29,6 @@ function CircleHandler(parent) {
 			repeat.call(this, lastc, function(i) {
 				//this.addCircle(new Circle(this.box.width*(i/lastc)+this.box.width*Math.random()*(1/lastc), this.box.height*Math.random(), 6));
 			});
-		} else {
-
 		}
 
 		repeat.call(this, 0, function (i) {
@@ -30,20 +42,20 @@ function CircleHandler(parent) {
 
 CircleHandler.prototype = {
 	constructor:CircleHandler,
-	circles:[],
 	cursor:"pointer",
 	selected:false,
 	addCircle: function(obj) {
 		if (obj instanceof Circle) {
 			this.circles.push(obj);
-		}
+		} else
+			throw "CLASS ERROR: Parameter must be instance of Circle";
 	},
 	onMouseDown: function(btnId, x, y) {
 		if ((btnId === 0) && this.box.checkBounds(x, y))
 			this.selected = true;
 	},
 	onMouseMove: function(x, y) {
-		return true;
+		return false;
 	},
 	onMouseUp: function(btnId, x, y) {
 		if (this.selected===true)
