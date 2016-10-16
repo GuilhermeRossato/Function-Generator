@@ -6,7 +6,7 @@ Grid.prototype = {
 	graphic: {
 		marginPercent: 0.13,
 		marginPx: 0,
-		divisions: 5,
+		divisions: 8,
 		exceedPercent: 0,
 		exceedPx: 9,
 		borderDash: [],
@@ -56,6 +56,7 @@ Grid.prototype = {
 			ctx.lineTo((b(this.box.left, this.box.right, this.graphic.marginPercent) | 0) + 0.5, (b(this.box.top, this.box.bottom, this.graphic.marginPercent + step * i) | 0) + 0.5);
 			ctx.moveTo((b(this.box.left, this.box.right, 1 - this.graphic.marginPercent + this.graphic.exceedPercent) + this.graphic.exceedPx | 0) + 0.5, (b(this.box.top, this.box.bottom, this.graphic.marginPercent + step * i) | 0) + 0.5);
 			ctx.lineTo((b(this.box.left, this.box.right, 1 - this.graphic.marginPercent) | 0) + 0.5, (b(this.box.top, this.box.bottom, this.graphic.marginPercent + step * i) | 0) + 0.5);
+			// Middle Lines
 			if (i !== 0 && i !== this.graphic.divisions) {
 				ctx.moveTo((b(this.box.left, this.box.right, this.graphic.marginPercent + step * i) | 0) + 0.5, (b(this.box.top, this.box.bottom, this.graphic.marginPercent) | 0) + 0.5);
 				ctx.lineTo((b(this.box.left, this.box.right, this.graphic.marginPercent + step * i) | 0) + 0.5, (b(this.box.top, this.box.bottom, 1 - this.graphic.marginPercent) | 0) + 0.5);
@@ -70,10 +71,10 @@ Grid.prototype = {
 		ctx.save();
 		ctx.fillStyle = "#ffffff";
 		ctx.font = '12px Calibri';
-		ctx.fillText("0", b(this.box.left, this.box.right, this.graphic.marginPercent) - 7 - this.graphic.numberDistance, b(this.box.top, this.box.bottom, 1 - this.graphic.marginPercent) + 8 + this.graphic.numberDistance);
-		ctx.fillText("1", b(this.box.left, this.box.right, 1 - this.graphic.marginPercent) + this.graphic.numberDistance, b(this.box.top, this.box.bottom, this.graphic.marginPercent) - 1 - this.graphic.numberDistance);
-		ctx.fillText("in", b(this.box.left, this.box.right, 1 - this.graphic.marginPercent + this.graphic.exceedPercent) + this.graphic.exceedPx - 1 + this.graphic.textDistance, b(this.box.top, this.box.bottom, 1 - this.graphic.marginPercent) + 3);
-		ctx.fillText("out", b(this.box.left, this.box.right, this.graphic.marginPercent) - 9, b(this.box.top, this.box.bottom, this.graphic.marginPercent - this.graphic.exceedPercent) - this.graphic.exceedPx - 1 - this.graphic.textDistance);
+		ctx.fillText("0", b(this.box.left, this.box.right, this.graphic.marginPercent) - 7 - this.graphic.numberDistance | 0, b(this.box.top, this.box.bottom, 1 - this.graphic.marginPercent) + 8 + this.graphic.numberDistance | 0);
+		ctx.fillText("1", b(this.box.left, this.box.right, 1 - this.graphic.marginPercent) + this.graphic.numberDistance | 0 , b(this.box.top, this.box.bottom, this.graphic.marginPercent) - 1 - this.graphic.numberDistance | 0);
+		ctx.fillText("in", b(this.box.left, this.box.right, 1 - this.graphic.marginPercent + this.graphic.exceedPercent) + this.graphic.exceedPx - 1 + this.graphic.textDistance | 0, b(this.box.top, this.box.bottom, 1 - this.graphic.marginPercent) + 3 |0);
+		ctx.fillText("out", b(this.box.left, this.box.right, this.graphic.marginPercent) - 9, b(this.box.top, this.box.bottom | 0, this.graphic.marginPercent - this.graphic.exceedPercent) - this.graphic.exceedPx - 1 - this.graphic.textDistance | 0);
 		ctx.restore();
 	},
 	draw: function(ctx) {

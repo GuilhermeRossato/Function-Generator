@@ -5,16 +5,16 @@ function resize() {
 		const cnstMargin = 25;
 		var cHeight;
 		if (window.innerWidth <= 500) {
-			cnvc.canvas.width = cHeight = (window.innerWidth * 0.9) - 15 - cnstMargin;
+			cnvc.width = cHeight = (window.innerWidth * 0.9) - 15 - cnstMargin;
 		} else if (window.innerWidth >= 800) {
-			cnvc.canvas.width = cHeight = 610 - 122 - cnstMargin;
+			cnvc.width = cHeight = 610 - 122 - cnstMargin;
 		} else {
-			cnvc.canvas.width = cHeight = (window.innerWidth * 0.8) - 150 - cnstMargin;
+			cnvc.width = cHeight = (window.innerWidth * 0.8) - 150 - cnstMargin;
 		}
-		cnvc.canvas.height = cHeight;
+		cnvc.height = cHeight;
 		divHeight.style.height = cHeight + "px";
 		cnvc.objects.forEach(obj => { if (obj.resize instanceof Function) obj.resize.call(obj, cHeight, cHeight)});
-		cnvc.draw();
+		cnvc.redraw();
 	}
 }
 window.addEventListener("load", function() {
@@ -22,10 +22,11 @@ window.addEventListener("load", function() {
 	divHeight = document.getElementById("canvasHeight");
 	divTools = document.getElementById("tools");
 	divPoints = document.getElementById("points");
-	cnvc = new CanvasController(document.getElementById("canvasRecipient"));
-	cnvc.addObject(new Grid(cnvc));
-	cnvc.addObject(new CircleHandler(cnvc));
+	cnvc = new CanvasController(document.getElementById("canvasRecipient"),100,100);
+	var grid = new Grid(cnvc)
+	cnvc.addObject(grid);
+	cnvc.addObject(new CircleHandler(cnvc, grid));
 	resize();
-	setInterval(()=>{cnvc.clear(); cnvc.draw();}, 250);
+	setInterval(()=>{cnvc.redraw();}, 250);
 });
 window.addEventListener("resize", resize);

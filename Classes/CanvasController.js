@@ -67,8 +67,9 @@ function CanvasController(recipient, width, height) {
 			writable: false
 		});
 
-		this.draw = function() {
+		this.redraw = function() {
 			var ctx = this.ctx;
+			this.clear(ctx);
 			this.objects.forEach(function (obj) {
 				if (obj instanceof Object) {
 					if (obj.draw instanceof Function)
@@ -125,7 +126,7 @@ CanvasController.prototype = {
 				}
 			});
 			if (shouldDraw) {
-				this.draw();
+				this.redraw();
 			}
 			this.mouse.cursor = shouldCursor;
 		}
