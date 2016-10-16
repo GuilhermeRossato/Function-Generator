@@ -1,74 +1,120 @@
-function CircleHandler(parent) {
+function CircleHandler(parent, grid) {
 	if (!(this.parent instanceof CanvasController))
 		this.parent = parent;
 	if (this.parent instanceof CanvasController) {
-		this.box = new GuiBox(0, 0, this.parent.width, this.parent.height);
-		var holdThis = this;
-		this.box.checkBounds = function(x, y) {
-			return holdThis.selected||(holdThis.circles.some(function (obj) { return (obj.inside(x, y)) }));
-		}
-		
-		this.circles = [];
-
-		["x", "y"].forEach((property) => {
-			var i, value;
-			for (i = 0;i<5;i++) {
-				value = parseInt(getCookie(property+i));
-				if ((typeof(lastc) !== "number") || (isNaN(lastc))) {
-					if (typeof this.circles[i] === "undefined") {
-						this.circles[i] = new Circle();
-					}
-					this.circles[i][property] = value;
-				}
-			}
-		});
-		lastc = parseInt(getCookie("circleCount"));
-		
-		if ((typeof(lastc) !== "number") || (isNaN(lastc))) {
-			lastc = 4;
-			repeat.call(this, lastc, function(i) {
-				//this.addCircle(new Circle(this.box.width*(i/lastc)+this.box.width*Math.random()*(1/lastc), this.box.height*Math.random(), 6));
-			});
-		}
-
-		repeat.call(this, 0, function (i) {
-			this.addCircle(new Circle(this.parent.width*Math.random(), this.parent.height*Math.random(), 10));
-			return true;
-		})
-
+		this.box = new GuiBox(0,0,this.parent.width,this.parent.height);
+		var self = this;
+		this.grid = grid;
+		this.maxCircles = 10;
+		this.isDragging = false;
+		this.loadFromCookies();
+		this.applyMininumCircleTreshold(3);
 	} else
 		console.error("Parent not CanvasController");
 }
-
 CircleHandler.prototype = {
-	constructor:CircleHandler,
-	cursor:"pointer",
-	selected:false,
+	constructor: CircleHandler,
+	selected: false,
+	applyMininumCircleTreshold: function(mininumPoints) {
+		for (var i = mininumPoints - this.circles.length - 1; i >= 0; i--) {
+			this.addCircle(new Circle(Math.random(),Math.random(), this.grid));
+		}
+	},
 	addCircle: function(obj) {
 		if (obj instanceof Circle) {
+			obj.parent = this;
+			obj.updateCanvasPosition(this.grid);
 			this.circles.push(obj);
 		} else
 			throw "CLASS ERROR: Parameter must be instance of Circle";
 	},
+	loadFromCookies: function() {
+		var circles = []
+		  , self = this;
+		["x", "y"].forEach((property)=>{
+			var i, value;
+			for (i = 0; i < self.maxCircles; i++) {
+				value = parseInt(getCookie(property + i));
+				if ((typeof (lastc) !== "number") || (isNaN(lastc))) {
+					if (typeof circles[i] === "undefined")
+						circles[i] = new Circle(0, 0, this.grid);
+					circles[i][property] = value;
+				}
+			}
+		}
+		);
+		this.circles = [];
+		for (i = self.maxCircles - 1; i >= 0; i--) {
+			if (circles[i]instanceof Circle && circles[i].x >= -1 && circles[i].x <= 2 && circles[i].y >= -1 && circles[i].y <= 2) {
+				this.circles.push(circles[i]);
+			}
+		}
+	},
+	saveToCookies: function() {
+		this.circles.forEach((obj,i)=>{
+			["x", "y"].forEach((property)=>{
+				setCookie(property + i, obj[property], 7);
+			}
+			);
+		}
+		);
+	},
 	onMouseDown: function(btnId, x, y) {
-		if ((btnId === 0) && this.box.checkBounds(x, y))
+		if ((btnId === 0) && this.circles.some((circle)=>circle.onMouseDown(x, y)))
 			this.selected = true;
 	},
 	onMouseMove: function(x, y) {
-		return false;
+		//this.parent.icon = (this.selected) ? "pointer" : "pointer";
+		this.cursor = "default";
+		if (this.selected) {
+			if (this.selectedCircle instanceof Circle) {
+				this.cursor = "pointer";
+				this.selectedCircle.normalizeCanvasPosition.call(this.selectedCircle, this.grid, x - this.selectedCircle.offset.x, y - this.selectedCircle.offset.y);
+				//this.selectedCircle.updateGraphPosition(this.grid);
+			}
+			this.parent.redraw();
+		} else {
+			if (this.circles.some((circle)=>circle.inside(x, y))) {
+				this.cursor = "pointer";
+			}
+		}
+		return this.selected;
 	},
 	onMouseUp: function(btnId, x, y) {
-		if (this.selected===true)
-			this.selected = false;
+		this.selected = false;
 	},
-	clear: function(ctx) {
-		this.box.clear(ctx);
+	updateCanvasPosition: function(grid) {
+		if (grid instanceof Grid)
+			this.grid = grid;
+		this.circles.forEach(function(circle) {
+			if (circle.available) {
+				circle.updateCanvasPosition(this.grid);
+			}
+		});
 	},
 	draw: function(ctx) {
-		ctx.strokeStyle = "#444";
+		ctx.save();
+		ctx.strokeStyle = "#FFFFFF";
 		ctx.lineWidth = 1;
 		ctx.beginPath();
-		this.circles.forEach(function(obj) { obj.draw.call(obj, ctx); });
+		this.circles.forEach((circle)=>{
+			if (circle.available) {
+				circle.draw.call(circle, ctx);
+			}
+		}
+		);
 		ctx.stroke();
+		ctx.restore();
+	},
+	resize: function(width, height) {
+		var self = this;
+		this.box.width = width;
+		this.box.height = height;
+		this.circles.forEach((circle)=>{
+			if (circle.available) {
+				circle.updateCanvasPosition.call(circle, self.grid);
+			}
+		}
+		);
 	}
 }
