@@ -3,17 +3,19 @@
 	<head>
 		<title>Bezier Function Generator</title>
 		<meta charset="utf-8"/>
-		<link href='style.css' rel='stylesheet' type='text/css'>
+		<link href="style.css" rel="stylesheet" type="text/css">
 
-        <script type='text/javascript' src='js-expression-eval/parser.js'></script>
-        <script type='text/javascript' src='cookie.js'></script>
-        <script type='text/javascript' src='Circle.js'></script>
-        <script type='text/javascript' src='CircleHandler.js'></script>
-        <script type='text/javascript' src='GuiBox.js'></script>
-        <script type='text/javascript' src='GuiButton.js'></script>
-        <script type='text/javascript' src='GuiInput.js'></script>
-        <script type='text/javascript' src='CanvasController.js'></script>
-		<script type='text/javascript' src='script.js'></script>
+        <script type="text/javascript" src="js-expression-eval/parser.js"></script>
+        <script type="text/javascript" src="cookie.js"></script>
+        <script type="text/javascript" src="math.js"></script>
+        <script type="text/javascript" src="Circle.js"></script>
+        <script type="text/javascript" src="CircleHandler.js"></script>
+        <script type="text/javascript" src="GuiBox.js"></script>
+        <script type="text/javascript" src="GuiButton.js"></script>
+        <script type="text/javascript" src="GuiInput.js"></script>
+        <script type="text/javascript" src="GuiTree.js"></script>
+        <script type="text/javascript" src="CanvasController.js"></script>
+		<script type="text/javascript" src="script.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
@@ -36,27 +38,46 @@
         <meta name="theme-color" content="#ffffff">
 	</head>
 	<body>
-		<h1>Bezier Function Generator</h1>
-		<div>
-			<div id="canvasRecipient" class="recipient"></div>
-			<div id="tools">text</div>
-		</div>
-		<div class="main"><p>The objective of this experiment is to generate multi purpose functions with interpolation. Using a modified Casteljau's Algorithm (inversed the equations), this application can generate custom functions for any purpose.</p>
-			<p>This experiment uses Javascript EMCA 5 and HTML5 Canvas element</p>
-			<p>Classes used:</p>
-			<ul>
-                <li>Canvas Controller (interface/drawing control)</li>
-				<li>Circle (main objects)</li>
-                <li>GUI Box (handles alignment for buttons)</li>
-                <li>GUI Button (for interface)</li>
-			</ul>
-			<p>Dependencies:</p>
-			<ul>
-			    <li>
-			        <a href="https://github.com/silentmatt/js-expression-eval/tree/master" itemprop="url" rel="name">JavaScript Expression Evaluator</a> by
-			        <a href="https://github.com/silentmatt" itemprop="url" rel="author">silentmatt</a>
-			    </li>
-			</ul>
+		<div class='flexbox'>
+			<div class='everything'>
+				<div class="header">
+					<h1>Bezier Function Generator</h1>
+				</div>
+				<div class="content">
+					<div id="canvasRecipient"></div>
+					<div id="tools">
+						<div class="actions"><h4>Actions</h4>
+							<input type="button" value="Get Function"/>
+							<input type="button" value="Templates"/>
+							<input type="button" value="Flip"/>
+							<input type="button" value="Rotate"/>
+							<input type="button" value="Scale"/>
+						</div>
+						<div id='points'><h4>Points</h4>
+						</div>
+					</div>
+					<div id='canvasHeight'></div>
+					<div class="info">
+						<p>The objective of this experiment is to generate multi purpose functions with interpolation. Using a modified Casteljau"s Algorithm this application can generate custom functions for any purpose.</p>
+						<p>This experiment uses Javascript EMCA 5 and HTML5 Canvas element, it was divided in the following classes:</p>
+						<ul>
+							<li>Canvas Controller (For interface/drawing control)</li>
+							<li>Circle (Draggable objects to control lines)</li>
+							<li>CircleController (Encapsulate draggable objects efficiently)</li>
+							<li>GUI Box (To handle alignment for every virtual interface)</li>
+							<li>GUI Button (virtual implementation of a button) </li>
+							<li>GUI Input (virtual textboxes)</li>
+						</ul>
+						<p>Dependencies:</p>
+						<ul>
+							<li>
+								<a href="http://mathjs.org/" itemprop="url" rel="name">math.js - An extensive math library for JavaScript and Node.js</a> by
+								<a href="https://github.com/josdejong" itemprop="url" rel="author">josdejong</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

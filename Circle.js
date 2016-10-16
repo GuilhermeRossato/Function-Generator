@@ -14,9 +14,13 @@ Circle.prototype = {
 		this.focus = true;
 	},
 	inside: function(x, y) {
-		return ((x > this.position.x-this.radius) && (x < this.position.x+this.radius) && (y > this.position.y-this.radius) && (y < this.position.y+this.radius) && (Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2) <= Math.pow(this.radius,2)));
-		//return (Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2) <= Math.pow(this.radius,2));
-		//return (Math.sqrt(Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2)) <= this.radius);
+		return (
+		(x > this.position.x-this.radius) &&
+		(x < this.position.x+this.radius) &&
+		(y > this.position.y-this.radius) &&
+		(y < this.position.y+this.radius) &&
+		(Math.pow((this.position.x-x),2)+Math.pow((this.position.y-y),2) <= Math.pow(this.radius,2))
+		);
 	},
 	draw: function(ctx, type) {
 		if (!type) {

@@ -1,4 +1,4 @@
-// Cookies are holding the players position
+// Small snippet to make it easier to use cookies
 
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();

@@ -1,54 +1,3 @@
-/*	CanvasController.js - Created by GuilhermeRossato 01/2016
- *
- * Requires: Timestamper.js (Optional)
- *
- * Create the object when then the recipient you want the canvas in is loaded:
- *  = new CanvasController(document.getElementById("recipient"));
- * --------------------------------------------------------------------------------------------------------
- * Methods:
- * 	constructor(recipient[, width, height]);	Class Constructor ( new CanvasController(...) )
- *		recipient	(HTMLDivElement)	actual <div> element for the canvas to be put at
- * 		width		(number)			Size of the canvas element in pixels (default 960px)
- * 		height		(number)			Size of the canvas element in pixels (default 480 px)
- *
- *  .addObject(object)						Adds an object to the CanvasController
- * 		object		A new instance of the object to be created
- *
- *
- * 	.addEventListener(type, listener);			Sends a call to 'listener' before processing a specific event
- * 		type		(string): "mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"
- * 		listener	(function): function to call when event happens
- * 		WARNING: listener MUST return logicly true value, otherwise the call will be aborted
- *		WARNING: useCapture	(from original addEventListener) IS NOT implemented and WILL be ignored
- * 		RETURN! if you return false in any event, that event WILL NOT be processed -> YOUR FUNCTION HAS TO RETURN TRUE BY DEFAULT!
- *
- * 	.removeEventListener(type, listener);		Removes a specific listener function from a specific event type
- * 		same as addEventListener
- *
- * 	.clearEventListener(type)					Clears all listener of an event type
- * 		type		Candidates: "mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"
- *
- * --------------------------------------------------------------------------------------------------------
- * Constant Properties:
- *	.canvas;		instance of HTMLCanvasElement (HTML5)
- *	.ctx;			instanceof CanvasRenderingContext2D
- * --------------------------------------------------------------------------------------------------------
- * Normal Properties:
- * 	.mouse  {x, y, left, middle, right}		Object that holds some information about the mouse state
- * 		.x			Number, mouse's horizontal position in pixels relative to the canvas, 0 is left, canvas width is right
- * 		.y			Number, mouse's vertical position in pixels relative to the canvas, 0 is top, canvas height is bottom
- * 		.left		Boolean, whenever the left mouse button is being pressed
- * 		.middle		Boolean, whenever the middle mouse button is being pressed
- * 		.right		Boolean, whenever the right mouse button is being pressed
- *  .timestamper	Instance of Timestamper if it is declared, for usage see Timestamper.js
- *  .multiplier		Number, default 1.0, number in which deltas are multiplied before being sent to object's update/draw functions
- * --------------------------------------------------------------------------------------------------------
- * "Private" Properties: (AKA not-meant-for-you-to-use-or-change)
- *		.events;		Array with keys corresponding to event types (string) to help with event listeners.
- * 		.objects;		Array with objects to handle, send draw calls, etc
- * 			Each object can optionally contain the following functions: draw(delta), update(delta), onMouseMove(x, y), onMouseDown(x, y, button), onMouseUp(x, y, button),
- */
-
 var eventCandidates = ["mousemove", "mousedown", "mouseup", "mouseclick", "keydown", "keyup"];
 
 if (typeof(defaultSet)!=="function") {
@@ -129,20 +78,6 @@ function CanvasController(recipient, width, height) {
 				}
 			});
 		}
-
-		/*
-		if (Timestamper) {
-			this.timestamper = new Timestamper(700,delta => this.objects.forEach(function (obj) {
-				if (obj instanceof Object) {
-					if (obj.clear instanceof Function)
-						obj.clear.call(obj, this.ctx);
-					if (obj.update instanceof Function)
-						obj.update.call(obj, delta*this.multiplier);
-					if (obj.draw instanceof Function)
-						obj.draw.call(obj, this.ctx, delta*this.multiplier);
-				}
-			}));
-		}*/
 
 		document.addEventListener("mousemove", function(ev) { CanvasController.prototype.onMouseMove.call(holdThis, ev); }, false);
 		document.addEventListener("mousedown", function(ev) { CanvasController.prototype.onMouseDown.call(holdThis, ev); }, false);

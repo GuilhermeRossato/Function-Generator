@@ -1,5 +1,6 @@
 function CircleHandler(parent) {
-	this.parent = parent;
+	if (!(this.parent instanceof CanvasController))
+		this.parent = parent;
 	if (this.parent instanceof CanvasController) {
 		this.box = new GuiBox(0, 0, this.parent.width, this.parent.height);
 		var holdThis = this;
@@ -7,19 +8,18 @@ function CircleHandler(parent) {
 			return holdThis.selected||(holdThis.circles.some(function (obj) { return (obj.inside(x, y)) }));
 		}
 		var lastc = NaN;
-		if (getCookie) {
-			lastc = parseInt(getCookie("circleCount"));
-		}
-		if (isNaN(lastc)) {
+		lastc = parseInt(getCookie("circleCount"));
+		
+		if ((typeof(lastc) !== "number") || (isNaN(lastc))) {
 			lastc = 4;
 			repeat.call(this, lastc, function(i) {
-				this.addCircle(new Circle(this.box.width*(i/lastc)+this.box.width*Math.random()*(1/lastc), this.box.height*Math.random(), 6));
+				//this.addCircle(new Circle(this.box.width*(i/lastc)+this.box.width*Math.random()*(1/lastc), this.box.height*Math.random(), 6));
 			});
 		} else {
 
 		}
 
-		repeat.call(this, 100, function (i) {
+		repeat.call(this, 0, function (i) {
 			this.addCircle(new Circle(this.parent.width*Math.random(), this.parent.height*Math.random(), 10));
 			return true;
 		})
@@ -54,6 +54,7 @@ CircleHandler.prototype = {
 	},
 	draw: function(ctx) {
 		ctx.strokeStyle = "#444";
+		ctx.lineWidth = 1;
 		ctx.beginPath();
 		this.circles.forEach(function(obj) { obj.draw.call(obj, ctx); });
 		ctx.stroke();
