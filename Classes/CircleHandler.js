@@ -9,6 +9,7 @@ function CircleHandler(parent, grid) {
 		this.isDragging = false;
 		this.loadFromCookies();
 		this.applyMininumCircleTreshold(3);
+		this.saveTimer = window.setInterval(() => {self.saveToCookies.call(self)}, 5000);
 	} else
 		console.error("Parent not CanvasController");
 }
@@ -17,7 +18,8 @@ CircleHandler.prototype = {
 	selected: false,
 	applyMininumCircleTreshold: function(mininumPoints) {
 		for (var i = mininumPoints - this.circles.length - 1; i >= 0; i--) {
-			this.addCircle(new Circle(Math.random(),Math.random(), this.grid));
+			var circle = new Circle(Math.random(),Math.random(), this.grid);
+			this.addCircle(circle);
 		}
 	},
 	addCircle: function(obj) {
@@ -34,26 +36,29 @@ CircleHandler.prototype = {
 		["x", "y"].forEach((property)=>{
 			var i, value;
 			for (i = 0; i < self.maxCircles; i++) {
-				value = parseInt(getCookie(property + i));
+				value = getCookie(property + i);
+				value = parseFloat(value);
 				if ((typeof (lastc) !== "number") || (isNaN(lastc))) {
 					if (typeof circles[i] === "undefined")
 						circles[i] = new Circle(0, 0, this.grid);
-					circles[i][property] = value;
+					circles[i].pos.graph[property] = value;
 				}
 			}
 		}
 		);
 		this.circles = [];
 		for (i = self.maxCircles - 1; i >= 0; i--) {
-			if (circles[i]instanceof Circle && circles[i].x >= -1 && circles[i].x <= 2 && circles[i].y >= -1 && circles[i].y <= 2) {
-				this.circles.push(circles[i]);
+			if (circles[i] instanceof Circle && circles[i].pos.graph.x >= -1 && circles[i].pos.graph.x <= 2 && circles[i].pos.graph.y >= -1 && circles[i].pos.graph.y <= 2) {
+				this.addCircle(circles[i]);
+				//this.circles.push(circles[i]);
 			}
 		}
 	},
 	saveToCookies: function() {
 		this.circles.forEach((obj,i)=>{
 			["x", "y"].forEach((property)=>{
-				setCookie(property + i, obj[property], 7);
+				var value = obj.pos.graph[property];
+				setCookie(property + i, value, 7);
 			}
 			);
 		}
@@ -81,7 +86,10 @@ CircleHandler.prototype = {
 		return this.selected;
 	},
 	onMouseUp: function(btnId, x, y) {
-		this.selected = false;
+		if (this.selected) {
+			this.saveToCookies();
+			this.selected = false;
+		}
 	},
 	updateCanvasPosition: function(grid) {
 		if (grid instanceof Grid)
@@ -95,6 +103,7 @@ CircleHandler.prototype = {
 	draw: function(ctx) {
 		ctx.save();
 		ctx.strokeStyle = "#FFFFFF";
+		ctx.fillStyle = "#999";
 		ctx.lineWidth = 1;
 		ctx.beginPath();
 		this.circles.forEach((circle)=>{
@@ -103,6 +112,7 @@ CircleHandler.prototype = {
 			}
 		}
 		);
+		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
 	},
