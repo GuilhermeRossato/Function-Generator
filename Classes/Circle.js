@@ -4,7 +4,7 @@ if (typeof (defaultSet) !== "function") {
 function Circle(x, y, grid) {
 	this.pos = {};
 	this.normalizeGraphPosition(grid, defaultSet(x, 0), defaultSet(y, 0))
-	this.radius = 10;
+	this.radius = 9;
 	this.available = true;
 }
 Circle.prototype = {
