@@ -10,6 +10,7 @@
         <script type="text/javascript" src="math.js"></script>
 		
         <script type="text/javascript" src="./Classes/GuiBox.js"></script>
+        <script type="text/javascript" src="./Classes/BezierDrawer.js"></script>
         <script type="text/javascript" src="./Classes/Circle.js"></script>
         <script type="text/javascript" src="./Classes/CircleHandler.js"></script>
         <script type="text/javascript" src="./Classes/CanvasController.js"></script>
@@ -46,24 +47,30 @@
 					<div id="canvasRecipient"></div>
 					<div id="tools">
 						<div class="actions"><h4>Actions</h4>
-							<input type="button" value="Presets"/>
-							<input type="button" value="Transform"/>
-							<input type="button" value="Options"/>
 							<input type="button" value="Get Function"/>
+							<!--<input type="button" value="Options"/>-->
+							<!--<input type="button" value="Presets"/>-->
+							<!--<input type="button" value="Transform"/>-->
+							<input type="button" value="Add Point"/>
+							<input type="button" value="Remove Point"/>
+							<input type="button" value="Finer Grid"/>
+							<input type="button" value="Coarser Grid"/>
+							<input type="button" value="Use Tendency"/>
+							<input type="button" value="Hide Points"/>
 						</div>
 						<div id='points'><h4>Points</h4></div>
 					</div>
 					<div id='canvasHeight'></div>
 					<div class="info">
-						<p>The objective of this experiment is to generate multi purpose functions with interpolation. Using a modified Casteljau"s Algorithm this application can generate custom functions for any purpose.</p>
+						<p>The objective of this experiment is to generate multi purpose functions with interpolation. Using a modified Casteljau's Algorithm this application can generate custom functions for any purpose.</p>
 						<p>This experiment uses Javascript EMCA 5 and HTML5 Canvas element, it was divided in the following classes:</p>
 						<ul>
-							<li>Canvas Controller (For interface/drawing control)</li>
+							<li>Canvas Controller (For interface and drawing control)</li>
 							<li>Circle (Draggable objects to control lines)</li>
 							<li>CircleController (Encapsulate draggable objects efficiently)</li>
-							<li>GUI Box (To handle alignment for every virtual interface)</li>
-							<li>GUI Button (virtual implementation of a button) </li>
-							<li>GUI Input (virtual textboxes)</li>
+							<li>GUI Box (To handle alignment in interfaces)</li>
+							<li>Grid (To serve as guide for draggable objects) </li>
+							<li>BezierDrawer (To draw the curve, interpolated or not)</li>
 						</ul>
 						<p>Dependencies:</p>
 						<ul>
