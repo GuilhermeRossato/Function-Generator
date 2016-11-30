@@ -4,7 +4,7 @@ if (typeof (defaultSet) !== "function") {
 function Circle(x, y, grid) {
 	this.pos = {};
 	this.normalizeGraphPosition(grid, defaultSet(x, 0), defaultSet(y, 0))
-	this.radius = 9;
+	this.radius = 8;
 	this.available = true;
 }
 Circle.prototype = {
@@ -14,9 +14,17 @@ Circle.prototype = {
 	},
 	normalizeGraphPosition: function(grid, x, y) {
 		var divisions = grid.graphic.divisions;
-		var graphPos = {
-			x: Math.floor((x * divisions) + 0.5) / divisions,
-			y: Math.floor((y * divisions) + 0.5) / divisions
+		var graphPos;
+		if (divisions == -1) {
+			graphPos = {
+				x: x,
+				y: y
+			}
+		} else {
+			graphPos = {
+				x: Math.floor((x * divisions) + 0.5) / divisions,
+				y: Math.floor((y * divisions) + 0.5) / divisions
+			}
 		}
 		if (graphPos.x < -0.1)
 			graphPos.x = -0.1;
@@ -29,7 +37,7 @@ Circle.prototype = {
 		this.pos.graph = graphPos;
 		this.pos.canvas = grid.translateGraphToPixel(graphPos.x, graphPos.y);
 	},
-	normalizeCanvasPosition: function(grid, x, y) {
+	normalizeCanvasPosition: function(grid, x, y, offsetX, offsetY) {
 		var graphPos = grid.translatePixelToGraph(x, y);
 		this.normalizeGraphPosition(grid, graphPos.x, graphPos.y);
 	},
@@ -43,10 +51,16 @@ Circle.prototype = {
 		if (this.parent.selected === false && this.inside(x, y)) {
 			this.parent.selected = true;
 			this.parent.selectedCircle = this;
-			this.offset = {
-				x: x - this.pos.canvas.x,
-				y: y - this.pos.canvas.y
-			};
+			if (cnvc.grid.graphic.divisions == -1)
+				this.offset = {
+					x: x - this.pos.canvas.x,
+					y: y - this.pos.canvas.y
+				};
+			else
+				this.offset = {
+					x: 0,
+					y: 0
+				};
 			return true;
 		}
 		return false;
