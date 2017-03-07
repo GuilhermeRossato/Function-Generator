@@ -10,14 +10,16 @@ function setupButton(id, button) {
 	else if (button.value == "Remove Point")
 		button.disabled = !(cnvc.chandler.canDeintroduceCircle());
 	else if (button.value == "Use Tendency") {
-		var interpolation = (getCookie("interpolation")==='1');
-		button.value = interpolation?"Use Tendency":"Use Interpolation";
-		cnvc.bezier.interpolation = interpolation;
+		var interpolation = getCookie("interpolation");
+		cnvc.bezier.interpolation = (interpolation === null || interpolation === "0");
+		button.value = (cnvc.bezier.interpolation)?"Use Tendency":"Use Interpolation";
 	}
 }
 function buttonPress(id, buttons) {
 	var button = buttons[id];
-	if (button.value == "Finer Grid") {
+	if (button.value == "Get Function") {
+		button.value = "Not Implemented";
+	} else if (button.value == "Finer Grid") {
 		let sidebtn = buttons.indexOf("Coarser Grid");
 		if (sidebtn && sidebtn.disabled)
 			sidebtn.disabled = false;
@@ -138,5 +140,6 @@ window.addEventListener('load', function() {
 	}
 	, 500);
 	createButtonEvents();
+	cnvc.redraw();
 });
 window.addEventListener('resize', resize);
