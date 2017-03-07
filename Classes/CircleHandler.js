@@ -9,7 +9,7 @@ function CircleHandler(parent, grid) {
 		this.maxCircles = 10;
 		this.isDragging = false;
 		this.loadFromCookies();
-		this.applyMininumCircleTreshold(2);
+		this.applyMininumCircleTreshold(3);
 		this.saveTimer = window.setInterval(()=>{
 			self.saveToCookies.call(self)
 		}
