@@ -1,8 +1,7 @@
 function Grid(cnvc) {
 	this.box = new GuiBox(0,0,cnvc.width,cnvc.height);
 	var ret = getCookie("divisions");
-	if (ret)
-		this.graphic.divisions = parseInt(ret);
+	this.graphic.divisions = ret?parseInt(ret):-1;
 }
 Grid.prototype = {
 	constructor: Grid,
