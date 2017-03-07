@@ -9,4 +9,5 @@ Acess this link to open the application:
 
 https://cdn.rawgit.com/GuilhermeRossato/Function-Generator/master/index.html
 
-Also experimented with Responsive Web Design in this project.
+Also experimented witdh Responsive Web Design in this project:
+![Preview](https://cdn.rawgit.com/GuilhermeRossato/Function-Generator/master/Responsive.gif)
